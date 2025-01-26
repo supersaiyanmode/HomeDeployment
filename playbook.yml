@@ -1,0 +1,40 @@
+ - hosts: all
+   remote_user: srivatsan
+   become: yes
+   become_user: root
+   become_method: sudo
+   roles:
+     - role: supersaiyanmode.ansible_utils.install_user
+       username: hdd
+
+     - role: supersaiyanmode.ansible_utils.configure_mounts
+       mounts:
+         - path: /hdd
+           dev: /dev/sda1
+           fstype: ntfs
+           opts: defaults,rw,gid=hdd,umask=0007
+           mounted: yes
+
+     - role: supersaiyanmode.ansible_utils.install_user
+       username: eagle
+       become_method: sudo
+       enable_sudo: true
+       user_groups:
+         - hdd
+         - sudo
+
+     - role: supersaiyanmode.ansible_utils.install_mysql
+       databases:
+         - nextcloud
+       users:
+         - name: nextcloud
+           password: "{{ lookup('env', 'NEXTCLOUD_DB_PASSWD') }}"
+           host: '172.17.%'
+       permissions:
+         - database: nextcloud
+           user: nextcloud
+           host: '172.17.%'
+
+     - role: pihole
+     - role: nextcloud
+

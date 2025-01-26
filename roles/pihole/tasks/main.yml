@@ -1,0 +1,21 @@
+---
+- name: Install Pihole container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: pihole
+    container_image: pihole/pihole:latest
+    main_port: 10080
+    container_mounts:
+      - /etc/pihole
+      - /etc/dnsmasq.d
+    env:
+      TZ: Asia/Kolkatta
+      WEBPASSWORD: "{{ lookup('env', 'PI_HOLE_ADMIN_PASSWD') }}"
+      DHCP_rapid_commit: "true"
+      DHCP_ROUTER: "{{ lookup('env', 'DHCP_ROUTER') }}"
+      DHCP_START: "{{ lookup('env', 'DHCP_START') }}"
+      DHCP_END: "{{ lookup('env', 'DHCP_END') }}"
+      WEB_PORT: "10080"
+      DHCP_IPv6: "true"
+

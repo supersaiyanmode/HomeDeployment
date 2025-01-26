@@ -1,0 +1,41 @@
+---
+
+- name: Get gid of hdd.
+  shell:
+    cmd: echo $(id -u hdd)
+  register: hdd_gid
+
+- name: Install Nextcloud docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: nextcloud
+    container_image: "nextcloud:latest"
+    container_ports: "10090:80"
+    network_mode: "bridge"
+    main_port: 10090
+    container_mounts:
+      - /var/www/html/config
+      - /var/www/html/data
+      - /var/www/html/custom_apps
+    setup_commands:
+      - "/bin/bash -c 'getent group hdd || groupadd hdd -g {{ hdd_gid.stdout }}'"
+      - "/bin/bash -c 'usermod -a -G hdd www-data'"
+    env:
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_HOST: 172.17.0.1
+      MYSQL_PASSWORD: "{{ lookup('env', 'NEXTCLOUD_DB_PASSWD') }}"
+      NEXTCLOUD_ADMIN_USER: "{{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}"
+      NEXTCLOUD_ADMIN_PASSWORD: "{{ lookup('env', 'NEXTCLOUD_ADMIN_PASSWD') }}"
+
+- name: Mount HDD's nextcloud data to Docker container's www/nextcloud/html/data
+  include_role:
+    name: supersaiyanmode.ansible_utils.configure_mounts
+  vars:
+    mounts:
+     - path: /docker/nextcloud/var-www-html-data
+       dev: /hdd/var-www-nextcloud-data
+       fstype: none
+       opts: bind
+       mounted: yes
