@@ -9,6 +9,8 @@
     container_mounts:
       - /etc/pihole
       - /etc/dnsmasq.d
+    capabilities:
+      - NET_ADMIN
     env:
       TZ: Asia/Kolkatta
       WEBPASSWORD: "{{ lookup('env', 'PI_HOLE_ADMIN_PASSWD') }}"
