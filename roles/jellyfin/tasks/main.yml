@@ -1,0 +1,34 @@
+---
+- name: Install jellyfin user
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_user
+  vars:
+    username: jellyfin
+    enable_linger: true
+    user_groups:
+      - hdd
+
+- name: Install Nextcloud docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: jellyfin
+    container_image: "jellyfin/jellyfin"
+    main_port: 8096
+    container_mounts:
+      - /config
+      - /cache
+      - /media
+    env:
+      temp: temp
+
+- name: Mount Nextcloud/movies/files to media.
+  include_role:
+    name: supersaiyanmode.ansible_utils.configure_mounts
+  vars:
+    mounts:
+     - path: /docker/jellyfin/media
+       dev: /docker/nextcloud/var-www-html-data/movies/files
+       fstype: none
+       opts: bind
+       mounted: yes

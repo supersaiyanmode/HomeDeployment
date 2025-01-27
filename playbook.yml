@@ -37,4 +37,5 @@
 
      - role: pihole
      - role: nextcloud
+     - role: jellyfin
 
