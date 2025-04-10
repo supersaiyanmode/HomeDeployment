@@ -39,3 +39,4 @@
      - role: nextcloud
      - role: jellyfin
 
+     - role: github_actions_self_hosted

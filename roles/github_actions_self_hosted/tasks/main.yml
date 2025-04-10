@@ -1,0 +1,10 @@
+---
+- name: Run Github Actions Runner Docker Container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: github_self_hosted_runner
+    container_image: "ghcr.io/supersaiyanmode/githubrunner:main"
+    env:
+      GITHUB_TOKEN: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+

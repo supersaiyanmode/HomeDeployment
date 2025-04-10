@@ -19,6 +19,10 @@ if [[ -z "${NEXTCLOUD_ADMIN_PASSWD}" ]]; then
   exit 1
 fi
 
+if [[ -z "${GITHUB_TOKEN}" ]]; then
+  echo "Need GitHub Runner token" 1>&2
+  exit 1
+fi
 
 # Environment variables to set:
 # TAILSCALE_AUTH_KEY
