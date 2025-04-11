@@ -7,4 +7,5 @@
     container_image: "ghcr.io/supersaiyanmode/githubrunner:main"
     env:
       GITHUB_TOKEN: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+      GITHUB_REPO: "{{ repo }}"
 

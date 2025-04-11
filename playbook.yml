@@ -38,5 +38,5 @@
      - role: pihole
      - role: nextcloud
      - role: jellyfin
-
      - role: github_actions_self_hosted
+       repo: https://github.com/HomeWeave
