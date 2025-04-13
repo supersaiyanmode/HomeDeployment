@@ -1,6 +1,6 @@
 export MAIN_HOST_NAME=eagle.com
 export DHCP_ROUTER=192.168.86.1
-export DHCP_START=192.168.86.110
+export DHCP_START=192.168.86.50
 export DHCP_END=192.168.86.250
 export NEXTCLOUD_ADMIN_USER=srivatsan
 
