@@ -4,6 +4,7 @@ export DHCP_START=192.168.86.50
 export DHCP_END=192.168.86.250
 export NEXTCLOUD_ADMIN_USER=srivatsan
 export DNS_UPSTREAM=8.8.8.8,8.8.4.4
+export CUSTOM_HOSTS="192.168.86.2 pihole.eagle.com;192.168.86.2 nextcloud.eagle.com;192.168.86.2 jellyfin.eagle.com"
 
 export CONFIGURE_BASIC="true"
 export INSTALL_HTTP="true"
