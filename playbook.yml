@@ -6,6 +6,7 @@
    roles:
      - role: supersaiyanmode.ansible_utils.install_user
        username: hdd
+       when: lookup('env', 'CONFIGURE_BASIC') == 'true'
 
      - role: supersaiyanmode.ansible_utils.configure_mounts
        mounts:
@@ -14,6 +15,7 @@
            fstype: ntfs
            opts: defaults,rw,gid=hdd,umask=0007
            mounted: yes
+       when: lookup('env', 'CONFIGURE_BASIC') == 'true'
 
      - role: supersaiyanmode.ansible_utils.install_user
        username: eagle
@@ -22,6 +24,10 @@
        user_groups:
          - hdd
          - sudo
+       when: lookup('env', 'CONFIGURE_BASIC') == 'true'
+
+     - role: supersaiyanmode.ansible_utils.install_http
+       when: lookup('env', 'INSTALL_HTTP') == 'true'
 
      - role: supersaiyanmode.ansible_utils.install_mysql
        databases:
@@ -34,9 +40,14 @@
          - database: nextcloud
            user: nextcloud
            host: '172.17.%'
+       when: lookup('env', 'INSTALL_MYSQL') == 'true'
 
      - role: pihole
+       when: "lookup('env', 'INSTALL_PIHOLE') == 'true'"
      - role: nextcloud
+       when: "lookup('env', 'INSTALL_NEXTCLOUD') == 'true'"
      - role: jellyfin
+       when: "lookup('env', 'INSTALL_JELLYFIN') == 'true'"
      - role: github_actions_self_hosted
        repo: https://github.com/HomeWeave
+       when: "lookup('env', 'INSTALL_GITHUB_RUNNER') == 'true'"
