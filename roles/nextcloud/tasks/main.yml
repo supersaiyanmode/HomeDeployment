@@ -59,3 +59,9 @@
     env:
       NEXTCLOUD_INIT_HTACCESS: "true"
 
+- name: Setup cron for Nextcloud
+  ansible.builtin.cron:
+    name: Nextcloud Cron
+    minute: "*/5"
+    job: docker exec -u www-data nextcloud php cron.php
+
