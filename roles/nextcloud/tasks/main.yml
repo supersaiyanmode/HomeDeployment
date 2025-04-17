@@ -65,3 +65,31 @@
     minute: "*/5"
     job: docker exec -u www-data nextcloud php cron.php
 
+- name: Install davfs2
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_packages
+  vars:
+    packages:
+      - davfs2
+
+- name: Davfs secrets
+  lineinfile:
+    path: /etc/davfs2/secrets
+    search_string: "{{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}"
+    line: "/home/srivatsan/nextcloud \
+      {{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }} \
+      {{ lookup('env', 'NEXTCLOUD_ADMIN_PASSWD') }}"
+    mode: '0600'
+
+- name: Create ~/nextcloud directory
+  file:
+    path: /home/srivatsan/nextcloud
+    state: directory
+
+- name: Mount nextcloud
+  ansible.posix.mount:
+    path: /home/srivatsan/nextcloud
+    src: "http://localhost:10090/remote.php/dav/files/{{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}"
+    opts: user,rw,sync,auto
+    fstype: davfs
+    state: mounted
