@@ -56,6 +56,8 @@
         cmd: >
           php occ config:system:set overwrite.cli.url
           --value "http://nextcloud.eagle.com"
+      - user: www-data
+        cmd: php occ config:system:set filesystem_check_changes --value 1
     env:
       NEXTCLOUD_INIT_HTACCESS: "true"
 
