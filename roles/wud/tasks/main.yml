@@ -1,0 +1,18 @@
+---
+- name: Whats up docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: wud
+    container_image: "ghcr.io/getwud/wud"
+    main_port: 12110
+    container_ports: "12110:3000"
+    network_mode: bridge
+    container_mounts:
+      - /store
+    custom_mounts:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env:
+      TZ: Asia/Kolkatta
+      WUD_TRIGGER_DOCKER_UPDATE_PRUNE: 'true'
+      WUD_TRIGGER_DOCKER_UPDATE_AUTO: 'false'

@@ -51,3 +51,5 @@
      - role: github_actions_self_hosted
        repo: https://github.com/HomeWeave
        when: "lookup('env', 'INSTALL_GITHUB_RUNNER') == 'true'"
+     - role: wud
+       when: "lookup('env', 'INSTALL_WUD') == 'true'"

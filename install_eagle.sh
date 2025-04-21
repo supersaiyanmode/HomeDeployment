@@ -4,7 +4,7 @@ export DHCP_START=192.168.86.50
 export DHCP_END=192.168.86.250
 export NEXTCLOUD_ADMIN_USER=srivatsan
 export DNS_UPSTREAM=8.8.8.8,8.8.4.4
-export CUSTOM_HOSTS="192.168.86.2 pihole.eagle.com;192.168.86.2 nextcloud.eagle.com;192.168.86.2 jellyfin.eagle.com"
+export CUSTOM_HOSTS="192.168.86.2 pihole.eagle.com;192.168.86.2 nextcloud.eagle.com;192.168.86.2 jellyfin.eagle.com;192.168.86.2 wud.eagle.com"
 
 export CONFIGURE_BASIC="true"
 export INSTALL_HTTP="true"
@@ -13,6 +13,7 @@ export INSTALL_PIHOLE="true"
 export INSTALL_NEXTCLOUD="true"
 export INSTALL_JELLYFIN="true"
 export INSTALL_GITHUB_RUNNER="true"
+export INSTALL_WUD="true"
 
 if [[ "${INSTALL_PIHOLE}" == "true" && -z "${PI_HOLE_ADMIN_PASSWD}" ]]; then
   echo "Need PiHole password" 1>&2
