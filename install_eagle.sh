@@ -1,4 +1,5 @@
 export MAIN_HOST_NAME=eagle.com
+export SUBNET="192.168.86.0/24"
 export DHCP_ROUTER=192.168.86.1
 export DHCP_START=192.168.86.50
 export DHCP_END=192.168.86.250
@@ -14,6 +15,7 @@ export INSTALL_NEXTCLOUD="true"
 export INSTALL_JELLYFIN="true"
 export INSTALL_GITHUB_RUNNER="true"
 export INSTALL_WUD="true"
+export INSTALL_TAILSCALE="true"
 
 if [[ "${INSTALL_PIHOLE}" == "true" && -z "${PI_HOLE_ADMIN_PASSWD}" ]]; then
   echo "Need PiHole password" 1>&2
@@ -35,6 +37,9 @@ if [[ "${INSTALL_GITHUB_RUNNER}" == "true" && -z "${GITHUB_TOKEN}" ]]; then
   exit 1
 fi
 
-# Environment variables to set:
-# TAILSCALE_AUTH_KEY
+if [[ "${INSTALL_TAILSCALE}" == "true" && -z "${TAILSCALE_AUTH_KEY}" ]]; then
+  echo "Need TailScale Auth Key. See: https://login.tailscale.com/admin/settings/keys " 1>&2
+  exit 1
+fi
+
 ansible-playbook -i $1, playbook.yml

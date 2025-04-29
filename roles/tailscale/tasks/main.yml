@@ -1,0 +1,19 @@
+---
+- name: Tailscale docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: tailscale
+    container_image: "tailscale/tailscale:latest"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    capabilities:
+      - NET_ADMIN
+    container_mounts:
+      - /tailscale-config
+    env:
+      TS_AUTHKEY: "{{ lookup('env', 'TAILSCALE_AUTH_KEY') }}"
+      TS_HOSTNAME: "{{ lookup('env', 'MAIN_HOST_NAME') }}"
+      TS_ROUTES: "{{ lookup('env', 'SUBNET') }}"
+      TS_STATE_DIR: /tailscale-config
+      TS_ACCEPT_DNS: 'true'

@@ -53,3 +53,5 @@
        when: "lookup('env', 'INSTALL_GITHUB_RUNNER') == 'true'"
      - role: wud
        when: "lookup('env', 'INSTALL_WUD') == 'true'"
+     - role: tailscale
+       when: "lookup('env', 'INSTALL_TAILSCALE') == 'true'"
