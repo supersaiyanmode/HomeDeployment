@@ -1,0 +1,16 @@
+---
+- include_role:
+    name: supersaiyanmode.ansible_utils.install_user
+  vars:
+    username: hdd
+
+- include_role:
+    name: supersaiyanmode.ansible_utils.configure_mounts
+  vars:
+    mounts:
+      - path: "{{ hdd_mount_path }}"
+        dev: "{{ hdd_device }}"
+        fstype: "{{ hdd_fs_type }}"
+        opts: defaults,rw,gid=hdd,umask=0007
+        mounted: yes
+

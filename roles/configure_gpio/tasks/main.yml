@@ -1,0 +1,20 @@
+---
+- include_role:
+    name: supersaiyanmode.ansible_utils.install_user
+  vars:
+    username: gpio
+
+- include_role:
+    name: supersaiyanmode.ansible_utils.configure_udev
+  vars:
+    rule_name: gpio
+    conditions:
+      - key: SUBSYSTEM
+        value: gpio
+      - key: KERNEL
+        value: "gpiochip*"
+    actions:
+      - key: MODE
+        value: "0770"
+      - key: GROUP
+        value: gpio
