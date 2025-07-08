@@ -1,5 +1,20 @@
 ---
 
+- name: Install MySQL
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_mysql
+  vars:
+     databases:
+       - nextcloud
+     users:
+       - name: nextcloud
+         password: "{{ nextcloud_db_password }}"
+         host: '172.17.%'
+     permissions:
+       - database: nextcloud
+         user: nextcloud
+         host: '172.17.%'
+
 - name: Get gid of hdd.
   shell:
     cmd: echo $(id -u hdd)
@@ -25,6 +40,7 @@
     container_image: "nextcloud:latest"
     container_ports: "10090:80"
     network_mode: "bridge"
+    image_pull: true
     main_port: 10090
     container_mounts:
       - /var/www/html/config
@@ -41,9 +57,9 @@
           php occ maintenance:install
           --database mysql --database-host 172.17.0.1 --database-name nextcloud
           --database-user nextcloud
-          --database-pass {{ lookup('env', 'NEXTCLOUD_DB_PASSWD') }}
-          --admin-user {{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}
-          --admin-pass {{ lookup('env', 'NEXTCLOUD_ADMIN_PASSWD') }}"
+          --database-pass {{ nextcloud_db_password }}
+          --admin-user {{ nextcloud_admin_user }}
+          --admin-pass {{ nextcloud_admin_passwd }}"
       - user: www-data
         cmd: >
           php occ config:system:set trusted_domains 1
@@ -58,6 +74,8 @@
           --value "http://nextcloud.eagle.com"
       - user: www-data
         cmd: php occ config:system:set filesystem_check_changes --value 1
+      - user: www-data
+        cmd: php occ upgrade
     env:
       NEXTCLOUD_INIT_HTACCESS: "true"
 
@@ -77,10 +95,10 @@
 - name: Davfs secrets
   lineinfile:
     path: /etc/davfs2/secrets
-    search_string: "{{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}"
+    search_string: "{{ nextcloud_admin_user }}"
     line: "/home/srivatsan/nextcloud \
-      {{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }} \
-      {{ lookup('env', 'NEXTCLOUD_ADMIN_PASSWD') }}"
+      {{ nextcloud_admin_user }} \
+      {{ nextcloud_admin_passwd }}"
     mode: '0600'
 
 - name: Create ~/nextcloud directory
@@ -91,7 +109,7 @@
 - name: Mount nextcloud
   ansible.posix.mount:
     path: /home/srivatsan/nextcloud
-    src: "http://localhost:10090/remote.php/dav/files/{{ lookup('env', 'NEXTCLOUD_ADMIN_USER') }}"
+    src: "http://localhost:10090/remote.php/dav/files/{{ nextcloud_admin_user }}"
     opts: user,rw,sync,auto
     fstype: davfs
     state: mounted
