@@ -1,57 +1,36 @@
  - hosts: all
-   remote_user: srivatsan
+   remote_user: "{{ lookup('env', 'USER') }}"
    become: yes
    become_user: root
    become_method: sudo
    roles:
-     - role: supersaiyanmode.ansible_utils.install_user
-       username: hdd
-       when: lookup('env', 'CONFIGURE_BASIC') == 'true'
+     - role: configure_hdd
+       when:  configure_hdd
 
-     - role: supersaiyanmode.ansible_utils.configure_mounts
-       mounts:
-         - path: /hdd
-           dev: /dev/sda1
-           fstype: ntfs
-           opts: defaults,rw,gid=hdd,umask=0007
-           mounted: yes
-       when: lookup('env', 'CONFIGURE_BASIC') == 'true'
-
-     - role: supersaiyanmode.ansible_utils.install_user
-       username: eagle
-       become_method: sudo
-       enable_sudo: true
-       user_groups:
-         - hdd
-         - sudo
-       when: lookup('env', 'CONFIGURE_BASIC') == 'true'
+     - role: configure_gpio
+       when:  configure_gpio
 
      - role: supersaiyanmode.ansible_utils.install_http
-       when: lookup('env', 'INSTALL_HTTP') == 'true'
-
-     - role: supersaiyanmode.ansible_utils.install_mysql
-       databases:
-         - nextcloud
-       users:
-         - name: nextcloud
-           password: "{{ lookup('env', 'NEXTCLOUD_DB_PASSWD') }}"
-           host: '172.17.%'
-       permissions:
-         - database: nextcloud
-           user: nextcloud
-           host: '172.17.%'
-       when: lookup('env', 'INSTALL_MYSQL') == 'true'
+       when: configure_http
 
      - role: pihole
-       when: "lookup('env', 'INSTALL_PIHOLE') == 'true'"
+       when: install_pihole
+
      - role: nextcloud
-       when: "lookup('env', 'INSTALL_NEXTCLOUD') == 'true'"
+       when: install_nextcloud
+
      - role: jellyfin
-       when: "lookup('env', 'INSTALL_JELLYFIN') == 'true'"
+       when: install_jellyfin
+
+     - role: tailscale
+       when: install_tailscale
+
+     - role: qbittorrent
+       when: install_qbittorrent
+
      - role: github_actions_self_hosted
        repo: https://github.com/HomeWeave
-       when: "lookup('env', 'INSTALL_GITHUB_RUNNER') == 'true'"
+       when: install_github_runner
+
      - role: wud
        when: "lookup('env', 'INSTALL_WUD') == 'true'"
-     - role: tailscale
-       when: "lookup('env', 'INSTALL_TAILSCALE') == 'true'"
