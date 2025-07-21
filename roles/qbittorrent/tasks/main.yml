@@ -1,0 +1,24 @@
+---
+- name: get hdd gid
+  getent:
+    database: group
+    key: hdd
+
+- name: Install qBittorrent container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: qbittorrent
+    container_image: lscr.io/linuxserver/qbittorrent:latest
+    main_port: 12020
+    image_pull: true
+    user_groups:
+      - "{{ getent_group.hdd[1] }}"
+    container_mounts:
+      - /config
+    custom_mounts:
+      - /hdd/nextcloud/downloader/files:/downloads
+    env:
+      WEBUI_PORT: "12020"
+      PGID: "{{ getent_group.hdd[1] }}"
+
