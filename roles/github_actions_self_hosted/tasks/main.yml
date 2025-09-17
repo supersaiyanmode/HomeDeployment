@@ -10,3 +10,4 @@
       GITHUB_REPO: "{{ repo }}"
     image_pull: true
     init: true
+    restart_policy: "no"
