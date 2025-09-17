@@ -34,3 +34,6 @@
 
      - role: wud
        when: "lookup('env', 'INSTALL_WUD') == 'true'"
+
+     - role: forgejo
+       when: install_forgejo
