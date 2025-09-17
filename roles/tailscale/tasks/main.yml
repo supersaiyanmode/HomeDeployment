@@ -19,3 +19,4 @@
     container_mounts:
       - /tailscale-config
     env: "{{ tailscale_env_vars | combine(env_vars) }}"
+    image_pull: true
