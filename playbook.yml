@@ -36,3 +36,6 @@
 
      - role: forgejo
        when: install_forgejo
+
+     - role: semaphore
+       when: install_semaphore

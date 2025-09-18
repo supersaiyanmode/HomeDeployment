@@ -1,0 +1,45 @@
+---
+
+- name: Install MySQL
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_mysql
+  vars:
+     databases:
+       - semaphore
+     users:
+       - name: semaphore
+         password: "{{ semaphore_db_password }}"
+         host: '172.17.%'
+     permissions:
+       - database: semaphore
+         user: semaphore
+         host: '172.17.%'
+
+docker run --name semaphore \
+-p 3000:3000 \
+
+- name: Install Semaphore docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: semaphore
+    container_image: "semaphoreui/semaphore:latest"
+    container_ports: "15321:3000"
+    network_mode: "bridge"
+    image_pull: true
+    main_port: 15321
+    container_mounts:
+      - /etc/semaphore
+      - /var/lib/semaphore
+    env:
+      SEMAPHORE_DB_DIALECT: mysql
+      SEMAPHORE_DB_HOST: 172.17.0.1
+      SEMAPHORE_DB_NAME: semaphore
+      SEMAPHORE_DB_USER: "{{ semaphore_db_user }}"
+      SEMAPHORE_ADMIN: "{{ semaphore_admin_name }}"
+      SEMAPHORE_ADMIN_PASSWORD: "{{ semaphore_admin_passwd }}"
+      SEMAPHORE_ADMIN_NAME: "{{ semaphore_admin_name }}"
+      SEMAPHORE_ADMIN_EMAIL: "{{ semaphore_admin_name }}@localhost"
+      SEMAPHORE_WEB_ROOT: "{{ semaphore_domain }}"
+
+
