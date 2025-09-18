@@ -29,7 +29,6 @@
        when: install_qbittorrent
 
      - role: github_actions_self_hosted
-       repo: https://github.com/HomeWeave
        when: install_github_runner
 
      - role: wud
