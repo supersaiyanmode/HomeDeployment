@@ -1,0 +1,39 @@
+---
+
+- name: Install MySQL
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_mysql
+  vars:
+     databases:
+       - forgejo
+     users:
+       - name: forgejo
+         password: "{{ forgejo_db_password }}"
+         host: '172.17.%'
+     permissions:
+       - database: forgejo
+         user: forgejo
+         host: '172.17.%'
+
+- name: Install Forgejo docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: git
+    container_image: "codeberg.org/forgejo/forgejo:11"
+    network_mode: "bridge"
+    image_pull: true
+    main_port: 13121
+    container_ports:
+      - "13121:3000"
+      - "13122:22"
+    container_mounts:
+      - /data
+    env:
+      FORGEJO__database__DB_TYPE: mysql
+      FORGEJO__database__HOST: 172.17.0.1
+      FORGEJO__database__USER: "{{ forgejo_db_user }}"
+      FORGEJO__database__PASSWD: "{{ forgejo_db_password }}"
+      FORGEJO__server__DOMAIN: "{{ forgejo_domain }}"
+
+
