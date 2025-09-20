@@ -15,9 +15,6 @@
          user: semaphore
          host: '172.17.%'
 
-docker run --name semaphore \
--p 3000:3000 \
-
 - name: Install Semaphore docker container
   include_role:
     name: supersaiyanmode.ansible_utils.install_docker_image
