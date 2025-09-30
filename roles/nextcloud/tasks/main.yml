@@ -49,8 +49,11 @@
       - /hdd/nextcloud:/data
     setup_commands:
       - cmd: "/bin/bash -c 'getent group hdd || groupadd hdd -g {{ hdd_gid.stdout }}'"
+        user: root
       - cmd: "usermod -a -G hdd www-data"
+        user: root
       - cmd: "mkdir -p /data"
+        user: root
       - user: www-data
         cmd: >
           /bin/bash -c "(php occ status | grep installed | grep true) ||
