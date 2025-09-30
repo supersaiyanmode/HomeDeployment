@@ -1,5 +1,13 @@
 ---
 
+- name: Generate runner secret
+  set_fact:
+    runner_secret: "328766b7fa8f48c6{{ \
+      query('community.general.random_string',\
+            override_all=hexchars, length=24)[0] }}"
+  vars:
+    hexchars: '0123456789abcdef'
+
 - name: Install MySQL
   include_role:
     name: supersaiyanmode.ansible_utils.install_mysql
@@ -29,6 +37,11 @@
       - "13122:22"
     container_mounts:
       - /data
+    setup_commands:
+      - cmd: >-
+          forgejo forgejo-cli actions register --name runner --scope HomeWeave
+            --secret "{{ runner_secret }}"
+        user: 1000
     env:
       FORGEJO__database__DB_TYPE: mysql
       FORGEJO__database__HOST: 172.17.0.1
@@ -36,4 +49,49 @@
       FORGEJO__database__PASSWD: "{{ forgejo_db_password }}"
       FORGEJO__server__DOMAIN: "{{ forgejo_domain }}"
 
+- name: Install Forgejo runner Docker DIND
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: forgejo-docker-dind
+    container_image: "docker:dind"
+    image_pull: true
+    privileged: true
+    command: dockerd -H tcp://0.0.0.0:13375 --tls=false
+    env:
+    assume_docker_installed: true
 
+
+- name: Configure Forgejo runner docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: forgejo-runner
+    container_image: "data.forgejo.org/forgejo/runner:11"
+    network_mode: "bridge"
+    image_pull: true
+    command: >-
+        forgejo-runner create-runner-file --instance http://{{ forgejo_domain }}
+          --secret "{{ runner_secret }}"
+    detach: false
+    user: 1000
+    container_mounts:
+      - /data
+    env:
+      DOCKER_HOST: tcp://172.17.0.1:13375
+    assume_docker_installed: true
+
+- name: Install Forgejo runner docker container
+  include_role:
+    name: supersaiyanmode.ansible_utils.install_docker_image
+  vars:
+    container_name: forgejo-runner
+    container_image: "data.forgejo.org/forgejo/runner:11"
+    network_mode: "bridge"
+    image_pull: true
+    command: forgejo-runner daemon
+    container_mounts:
+      - /data
+    env:
+      DOCKER_HOST: tcp://172.17.0.1:13375
+    assume_docker_installed: true
