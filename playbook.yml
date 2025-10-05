@@ -5,37 +5,37 @@
    become_method: sudo
    roles:
      - role: configure_hdd
-       when:  configure_hdd
+       when:  configure_hdd is defined and configure_hdd
 
      - role: configure_gpio
-       when:  configure_gpio
+       when:  configure_gpio is defined and configure_gpio
 
      - role: supersaiyanmode.ansible_utils.install_http
-       when: configure_http
+       when: configure_http is defined and configure_http
 
      - role: pihole
-       when: install_pihole
+       when: install_pihole is defined and install_pihole
 
      - role: nextcloud
-       when: install_nextcloud
+       when: install_nextcloud is defined and install_nextcloud
 
      - role: jellyfin
-       when: install_jellyfin
+       when: install_jellyfin is defined and install_jellyfin
 
      - role: tailscale
-       when: install_tailscale
+       when: install_tailscale is defined and install_tailscale
 
      - role: qbittorrent
-       when: install_qbittorrent
+       when: install_qbittorrent is defined and install_qbittorrent
 
      - role: github_actions_self_hosted
-       when: install_github_runner
+       when: install_github_runner is defined and install install_github_runner
 
      - role: wud
        when: "lookup('env', 'INSTALL_WUD') == 'true'"
 
      - role: forgejo
-       when: install_forgejo
+       when: install_forgejo is defined and install_forgejo
 
      - role: semaphore
-       when: install_semaphore
+       when: install_semaphore is defined and install_semaphore
