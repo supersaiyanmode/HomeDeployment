@@ -29,7 +29,7 @@
        when: install_qbittorrent is defined and install_qbittorrent
 
      - role: github_actions_self_hosted
-       when: install_github_runner is defined and install install_github_runner
+       when: install_github_runner is defined and install_github_runner
 
      - role: wud
        when: "lookup('env', 'INSTALL_WUD') == 'true'"
