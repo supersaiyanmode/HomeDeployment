@@ -11,6 +11,7 @@
 #   - DHCP_ROUTER: Required. Eg: "192.168.86.1"
 #   - CUSTOM_DNS_NAMES: Required. Eg: "192.168.86.2 foo.com;192.168.86.2 bar.com"
 #   - DNS_UPSTREAMS: Defaults to: "8.8.8.8;8.8.4.4"
+#   - PIHOLE_CONTAINER: Defaults to "pihole/pihole:latest"
 #
 # Env vars:
 #   - PI_HOLE_ADMIN_PASSWD: Required. Admin password.
@@ -21,7 +22,7 @@
     name: supersaiyanmode.ansible_utils.install_docker_image
   vars:
     container_name: pihole
-    container_image: pihole/pihole:latest
+    container_image: "{{ PIHOLE_CONTAINER }}"
     main_port: 10080
     image_pull: true
     container_mounts:

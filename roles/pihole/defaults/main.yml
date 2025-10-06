@@ -4,3 +4,4 @@ ENABLE_IPV6: "true"
 DNS_LISTENING_MODE: "all"
 DNS_UPSTREAMS: "8.8.8.8;8.8.4.4"
 DHCP_ACTIVE: "true"
+PIHOLE_CONTAINER: pihole/pihole:latest
