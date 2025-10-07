@@ -1,0 +1,4 @@
+---
+NEXTCLOUD_CONTAINER: "nextcloud:latest"
+NEXTCLOUD_DB_NAME: nextcloud
+NEXTCLOUD_DB_USER: nextcloud

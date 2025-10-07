@@ -1,35 +1,52 @@
 ---
 
+#
+# Supported Vars:
+#   - NEXTCLOUD_CONTAINER: Defaults to "nextcloud:latest"
+#   - NEXTCLOUD_DB_NAME: Defaults to "nextcloud"
+#   - NEXTCLOUD_DB_USER: Defaults to "nextcloud"
+#   - NEXTCLOUD_DB_PASSWORD: Required.
+#   - NEXTCLOUD_ADMIN_USER: Required.
+#   - NEXTCLOUD_ADMIN_PASSWD: Required.
+#   - NEXTCLOUD_DOMAIN: Required.
+#   - NEXTCLOUD_DATA_DIR: Required. Actual storage location.
+#   - NEXTCLOUD_DATA_DIR_GROUP: Required. Group for data dir
+#   - NEXTCLOUD_LOCAL_MOUNT_DIR: Optional. Eg: /home/foo/nextcloud.
+#
+# Env vars:
+#   - PI_HOLE_ADMIN_PASSWD: Required. Admin password.
+#
+
 - name: Install MySQL
   include_role:
     name: supersaiyanmode.ansible_utils.install_mysql
   vars:
      databases:
-       - nextcloud
+       - "{{ NEXTCLOUD_DB_NAME }}"
      users:
-       - name: nextcloud
-         password: "{{ nextcloud_db_password }}"
+       - name: "{{ NEXTCLOUD_DB_USER }}"
+         password: "{{ NEXTCLOUD_DB_PASSWORD }}"
          host: '172.17.%'
      permissions:
-       - database: nextcloud
-         user: nextcloud
+       - database: "{{ NEXTCLOUD_DB_NAME }}"
+         user: "{{ NEXTCLOUD_DB_USER }}"
          host: '172.17.%'
 
-- name: Get gid of hdd.
+- name: "Get gid of {{ NEXTCLOUD_DATA_DIR_GROUP }}."
   shell:
-    cmd: echo $(id -u hdd)
+    cmd: "echo $(id -u {{ NEXTCLOUD_DATA_DIR_GROUP }})"
   register: hdd_gid
 
-- name: Create /hdd/nextcloud directory
+- name: Create {{ NEXTCLOUD_DATA_DIR }} directory
   file:
-    path: /hdd/nextcloud
+    path: "{{ NEXTCLOUD_DATA_DIR }}"
     state: directory
-    owner: hdd
-    group: hdd
+    owner: "{{ NEXTCLOUD_DATA_DIR_GROUP }}"
+    group: "{{ NEXTCLOUD_DATA_DIR_GROUP }}"
 
-- name: Create .ncdata
+- name: "Create .ncdata at {{ NEXTCLOUD_DATA_DIR }}"
   copy:
-    dest: /hdd/nextcloud/.ncdata
+    dest: "{{ NEXTCLOUD_DATA_DIR }}/.ncdata"
     content: "# Nextcloud data directory\n# Do not change this file"
 
 - name: Install Nextcloud docker container
@@ -37,7 +54,7 @@
     name: supersaiyanmode.ansible_utils.install_docker_image
   vars:
     container_name: nextcloud
-    container_image: "nextcloud:latest"
+    container_image: "{{ NEXTCLOUD_CONTAINER }}"
     container_ports: "10090:80"
     network_mode: "bridge"
     image_pull: true
@@ -46,7 +63,7 @@
       - /var/www/html/config
       - /var/www/html/custom_apps
     custom_mounts:
-      - /hdd/nextcloud:/data
+      - "{{ NEXTCLOUD_DATA_DIR}}:/data"
     setup_commands:
       - cmd: "/bin/bash -c 'getent group hdd || groupadd hdd -g {{ hdd_gid.stdout }}'"
         user: root
@@ -58,15 +75,17 @@
         cmd: >
           /bin/bash -c "(php occ status | grep installed | grep true) ||
           php occ maintenance:install
-          --database mysql --database-host 172.17.0.1 --database-name nextcloud
-          --database-user nextcloud
-          --database-pass {{ nextcloud_db_password }}
-          --admin-user {{ nextcloud_admin_user }}
-          --admin-pass {{ nextcloud_admin_passwd }}"
+          --database mysql
+          --database-host 172.17.0.1
+          --database-name {{ NEXTCLOUD_DB_NAME }}
+          --database-user {{ NEXTCLOUD_DB_USER }}
+          --database-pass {{ NEXTCLOUD_DB_PASSWORD }}
+          --admin-user {{ NEXTCLOUD_ADMIN_USER }}
+          --admin-pass {{ NEXTCLOUD_ADMIN_PASSWD }}"
       - user: www-data
         cmd: >
           php occ config:system:set trusted_domains 1
-          --value "nextcloud.eagle.com"
+          --value "{{ NEXTCLOUD_DOMAIN }}"
       - user: www-data
         cmd: php occ config:system:set trusted_proxies 0 --value "172.17.0.0/24"
       - user: www-data
@@ -74,7 +93,7 @@
       - user: www-data
         cmd: >
           php occ config:system:set overwrite.cli.url
-          --value "http://nextcloud.eagle.com"
+          --value "http://{{ NEXTCLOUD_DOMAIN }}"
       - user: www-data
         cmd: php occ config:system:set filesystem_check_changes --value 1
       - user: www-data
@@ -94,25 +113,29 @@
   vars:
     packages:
       - davfs2
+  when: NEXTCLOUD_LOCAL_MOUNT_DIR is defined
 
 - name: Davfs secrets
   lineinfile:
     path: /etc/davfs2/secrets
-    search_string: "{{ nextcloud_admin_user }}"
-    line: "/home/srivatsan/nextcloud \
-      {{ nextcloud_admin_user }} \
-      {{ nextcloud_admin_passwd }}"
+    search_string: "{{ NEXTCLOUD_ADMIN_USER }}"
+    line: "{{ NEXTCLOUD_DATA_DIR}} \
+      {{ NEXTCLOUD_ADMIN_USER }} \
+      {{ NEXTCLOUD_ADMIN_PASSWD }}"
     mode: '0600'
+  when: NEXTCLOUD_LOCAL_MOUNT_DIR is defined
 
-- name: Create ~/nextcloud directory
+- name: "Create {{ NEXTCLOUD_LOCAL_MOUNT_DIR | default('') }} directory"
   file:
-    path: /home/srivatsan/nextcloud
+    path: "{{ NEXTCLOUD_LOCAL_MOUNT_DIR }}"
     state: directory
+  when: NEXTCLOUD_LOCAL_MOUNT_DIR is defined
 
 - name: Mount nextcloud
   ansible.posix.mount:
-    path: /home/srivatsan/nextcloud
-    src: "http://localhost:10090/remote.php/dav/files/{{ nextcloud_admin_user }}"
+    path: "{{ NEXTCLOUD_LOCAL_MOUNT_DIR }}"
+    src: "http://localhost:10090/remote.php/dav/files/{{ NEXTCLOUD_ADMIN_USER }}"
     opts: user,rw,sync,auto
     fstype: davfs
     state: mounted
+  when: NEXTCLOUD_LOCAL_MOUNT_DIR is defined
