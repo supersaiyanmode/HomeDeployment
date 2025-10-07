@@ -1,5 +1,5 @@
 collections:
   - name: https://github.com/supersaiyanmode/ansible-utils.git#supersaiyanmode/ansible_utils
     type: git
-    version: 867ca1ed946a22d1bb0a15c37f4a826d2494aa4c
+    version: 014fd71354738defd4966e87309084b64ba2ec37
 
