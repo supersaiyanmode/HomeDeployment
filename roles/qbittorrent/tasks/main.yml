@@ -1,24 +1,34 @@
 ---
+
+#
+# Supported Vars:
+#   - QBITTORRENT_DOWNLOAD_DIR_GROUP: Required.
+#   - QBITTORRENT_DOWNLOAD_DIR: Required.
+#   - QBITTORRENT_SERVER_HOST: Required. Eg: qbittorent.foo.com
+#   - QBITTORRENT_CONTAINER: Defaults to lscr.io/linuxserver/qbittorrent:latest
+#
+
 - name: get hdd gid
   getent:
     database: group
-    key: hdd
+    key: "{{ QBITTORRENT_DOWNLOAD_DIR_GROUP }}"
 
 - name: Install qBittorrent container
   include_role:
     name: supersaiyanmode.ansible_utils.install_docker_image
   vars:
     container_name: qbittorrent
-    container_image: lscr.io/linuxserver/qbittorrent:latest
+    container_image: "{{ QBITTORRENT_CONTAINER }}"
+    server_host: "{{ QBITTORRENT_SERVER_HOST }}"
     main_port: 12020
     image_pull: true
     user_groups:
-      - "{{ getent_group.hdd[1] }}"
+      - "{{ getent_group[QBITTORRENT_DOWNLOAD_DIR_GROUP][1] }}"
     container_mounts:
       - /config
     custom_mounts:
-      - /hdd/nextcloud/downloader/files:/downloads
+      - "{{ QBITTORRENT_DOWNLOAD_DIR }}:/downloads"
     env:
       WEBUI_PORT: "12020"
-      PGID: "{{ getent_group.hdd[1] }}"
+      PGID: "{{ getent_group[QBITTORRENT_DOWNLOAD_DIR_GROUP][1] }}"
 
