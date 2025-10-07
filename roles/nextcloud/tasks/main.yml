@@ -10,6 +10,7 @@
 #   - NEXTCLOUD_ADMIN_PASSWD: Required.
 #   - NEXTCLOUD_DOMAIN: Required.
 #   - NEXTCLOUD_DATA_DIR: Required. Actual storage location.
+#   - NEXTCLOUD_SERVER_HOST: Required. Eg: nextcloud.foo.com
 #   - NEXTCLOUD_DATA_DIR_GROUP: Required. Group for data dir
 #   - NEXTCLOUD_LOCAL_MOUNT_DIR: Optional. Eg: /home/foo/nextcloud.
 #
@@ -59,6 +60,7 @@
     network_mode: "bridge"
     image_pull: true
     main_port: 10090
+    server_host: "{{ NEXTCLOUD_SERVER_HOST }}"
     container_mounts:
       - /var/www/html/config
       - /var/www/html/custom_apps
