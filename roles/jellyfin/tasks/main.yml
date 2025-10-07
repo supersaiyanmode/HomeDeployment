@@ -4,6 +4,7 @@
 # Supported Vars:
 #   - JELLYFIN_CONTAINER: Defaults to "jellyfin/jellyfin"
 #   - JELLYFIN_MEDIA_DIR: Required.
+#   - JELLYFIN_SERVER_HOST: Required. Eg: jellyfin.foo.com
 #
 
 - name: Install Nextcloud docker container
@@ -12,6 +13,7 @@
   vars:
     container_name: jellyfin
     container_image: "{{ JELLYFIN_CONTAINER }}"
+    server_host: "{{ JELLYFIN_SERVER_HOST }}"
     main_port: 8096
     image_pull: true
     container_mounts:
