@@ -1,16 +1,23 @@
 ---
+
+#
+# Supported Vars:
+#   - JELLYFIN_CONTAINER: Defaults to "jellyfin/jellyfin"
+#   - JELLYFIN_MEDIA_DIR: Required.
+#
+
 - name: Install Nextcloud docker container
   include_role:
     name: supersaiyanmode.ansible_utils.install_docker_image
   vars:
     container_name: jellyfin
-    container_image: "jellyfin/jellyfin"
+    container_image: "{{ JELLYFIN_CONTAINER }}"
     main_port: 8096
+    image_pull: true
     container_mounts:
       - /config
       - /cache
     custom_mounts:
-      - /hdd/nextcloud/movies/files:/media
+      - "{{ JELLYFIN_MEDIA_DIR }}:/media"
     env:
-      temp: temp
 
