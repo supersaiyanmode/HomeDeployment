@@ -1,13 +1,21 @@
 ---
+
+#
+# Supported Vars:
+#   - GITHUB_RUNNER_TOKEN: Required.
+#   - GITHUB_ORG: https://github.com/Organization
+#   - GITHUB_RUNNER_CONTAINER: Default "ghcr.io/supersaiyanmode/githubrunner:main"
+#
+
 - name: Run Github Actions Runner Docker Container
   include_role:
     name: supersaiyanmode.ansible_utils.install_docker_image
   vars:
     container_name: github_self_hosted_runner
-    container_image: "ghcr.io/supersaiyanmode/githubrunner:main"
+    container_image: "{{ GITHUB_RUNNER_CONTAINER }}"
     env:
-      GITHUB_TOKEN: "{{ lookup('env', 'GITHUB_TOKEN') }}"
-      GITHUB_REPO: "{{ repo }}"
+      GITHUB_TOKEN: "{{ GITHUB_RUNNER_TOKEN }}"
+      GITHUB_REPO: "{{ GITHUB_ORG }}"
     image_pull: true
     init: true
     restart_policy: "no"
