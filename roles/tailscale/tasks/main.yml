@@ -1,11 +1,5 @@
 ---
 
-- name: Static configurations
-  set_fact:
-    env_vars:
-      TS_STATE_DIR: /tailscale-config
-      TS_ACCEPT_DNS: 'true'
-
 - name: Tailscale docker container
   include_role:
     name: supersaiyanmode.ansible_utils.install_docker_image
@@ -19,4 +13,10 @@
     container_mounts:
       - /tailscale-config
     env: "{{ tailscale_env_vars | combine(env_vars) }}"
+      TS_STATE_DIR: /tailscale-config
+      TS_ACCEPT_DNS: 'true'
+      TS_AUTHKEY: "{{ TAILSCALE_AUTH_KEY }}"
+      TS_HOSTNAME: "{{ TAILSCALE_HOST_NAME }}"
+      TS_ROUTES: "{{ TAILSCALE_SUBNET }}"
+      TS_EXTRA_ARGS: "{{ '--advertise-exit-node' if TAILSCALE_EXIT_NODE else omit }}"
     image_pull: true
