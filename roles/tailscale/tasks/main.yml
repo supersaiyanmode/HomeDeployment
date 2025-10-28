@@ -17,6 +17,6 @@
       TS_STATE_DIR: /tailscale-config
       TS_ACCEPT_DNS: 'true'
       TS_AUTHKEY: "{{ TAILSCALE_AUTHKEY }}"
-      TS_HOSTNAME: "{{ TAILSCALE_HOST_NAME }}"
+      TS_HOSTNAME: "{{ TAILSCALE_HOSTNAME }}"
       TS_ROUTES: "{{ TAILSCALE_SUBNET }}"
       TS_EXTRA_ARGS: "{{ '--advertise-exit-node' if TAILSCALE_EXIT_NODE else omit }}"
