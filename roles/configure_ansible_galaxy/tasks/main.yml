@@ -2,5 +2,5 @@
 - name: Install collections and roles together
   community.general.ansible_galaxy_install:
     type: both
-    requirements_file: requirements.yml
+    requirements_file: "{{ playbook_dir }}/requirements.yml"
     force: true
