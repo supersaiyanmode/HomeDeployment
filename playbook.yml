@@ -4,8 +4,6 @@
    become_user: root
    become_method: sudo
    roles:
-     - role: configure_ansible_galaxy
-
      - role: configure_hdd
        when:  configure_hdd is defined and configure_hdd
 
