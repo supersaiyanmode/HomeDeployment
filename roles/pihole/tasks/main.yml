@@ -12,6 +12,7 @@
 #   - CUSTOM_DNS_NAMES: Required. Eg: "192.168.86.2 foo.com;192.168.86.2 bar.com"
 #   - DNS_UPSTREAMS: Defaults to: "8.8.8.8;8.8.4.4"
 #   - PIHOLE_CONTAINER: Defaults to "pihole/pihole:latest"
+#   - PIHOLE_SERVER_HOST: Required. Eg: pihole.foo.com
 #
 # Env vars:
 #   - PI_HOLE_ADMIN_PASSWD: Required. Admin password.
@@ -23,6 +24,7 @@
   vars:
     container_name: pihole
     container_image: "{{ PIHOLE_CONTAINER }}"
+    server_host: "{{ PIHOLE_SERVER_HOST }}"
     main_port: 10080
     image_pull: true
     container_mounts:
