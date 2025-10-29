@@ -1,4 +1,5 @@
 collections:
   - name: https://github.com/supersaiyanmode/ansible-utils.git#supersaiyanmode/ansible_utils
     type: git
+    version: HEAD
 
