@@ -39,3 +39,9 @@
 
      - role: semaphore
        when: install_semaphore is defined and install_semaphore
+
+     - role: traefik
+       when: install_traefik is defined and install_traefik
+
+     - role: dockhand
+       when: install_dockhand is defined and install_dockhand
