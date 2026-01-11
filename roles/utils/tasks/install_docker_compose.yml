@@ -1,0 +1,28 @@
+#
+# Generates a Docker Compose file for a service to be managed by Dockhand.
+#
+# This task takes a set of container parameters and templates them into a
+# docker-compose.yml file within the Dockhand stacks directory. This allows
+# Dockhand to discover and manage the service.
+#
+# Parameters:
+#   - container_name (string, required): The name of the service/container.
+#   - container_image (string, required): The docker image to use.
+#   - command (list of strings, optional): The command to run in the container.
+#   - networks (list, optional): The networks to connect the container to.
+#   - labels (dict, optional): A dictionary of labels to add to the container.
+#   - security_opts (list of strings, optional): A list of security options.
+#   - restart_policy (string, optional): The restart policy. e.g., "unless-stopped".
+#   - container_ports (list of strings, optional): Ports to expose. e.g., ["8080:80"].
+#   - container_mounts (list of strings, optional): Managed volume mounts.
+#   - custom_mounts (list of strings, optional): Custom volume mounts.
+#   - env (dict, optional): Environment variables for the container.
+#
+- name: "Generate Docker Compose file for {{ container_name }}"
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "/docker/dockhand/app-data/stacks/{{ container_name }}/docker-compose.yml"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+    mode: '0664'
+    create_dir: yes

@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  {{ container_name }}:
+    image: "{{ container_image }}"
+    container_name: "{{ container_name }}"
+    {% if restart_policy %}
+    restart: "{{ restart_policy }}"
+    {% endif %}
+    {% if container_ports %}
+    ports:
+      {% for port in container_ports %}
+      - "{{ port }}"
+      {% endfor %}
+    {% endif %}
+    {% if command %}
+    command:
+      {% for cmd_part in command %}
+      - "{{ cmd_part }}"
+      {% endfor %}
+    {% endif %}
+    {% if custom_mounts or container_mounts %}
+    volumes:
+      {% for mount in custom_mounts | default([]) %}
+      - "{{ mount }}"
+      {% endfor %}
+      {% for mount in container_mounts | default([]) %}
+      - "/docker/{{ container_name }}/{{ mount | regex_replace('/', '-') | trim('-') }}:{{ mount }}"
+      {% endfor %}
+    {% endif %}
+    {% if env %}
+    environment:
+      {% for key, value in env.items() %}
+      - {{ key }}={{ value }}
+      {% endfor %}
+    {% endif %}
+    {% if networks %}
+    networks:
+      {% for net in networks %}
+      - "{{ net.name if net is mapping else net }}"
+      {% endfor %}
+    {% endif %}
+    {% if labels %}
+    labels:
+      {% for key, value in labels.items() %}
+      - "{{ key }}={{ value }}"
+      {% endfor %}
+    {% endif %}
+    {% if security_opts %}
+    security_opt:
+      {% for opt in security_opts %}
+      - "{{ opt }}"
+      {% endfor %}
+    {% endif %}
+
+{% if networks %}
+networks:
+  {% for net in networks %}
+  {{ net.name if net is mapping else net }}:
+    external: true
+  {% endfor %}
+{% endif %}
