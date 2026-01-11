@@ -11,7 +11,7 @@
 #   - command (list of strings, optional): The command to run in the container.
 #   - networks (list of strings, optional): The networks to connect the container to.
 #   - labels (dict, optional): A dictionary of labels to add to the container.
-#   - security_opt (list of strings, optional): A list of security options.
+#   - security_opts (list of strings, optional): A list of security options.
 #   - restart_policy (string, optional): The restart policy for the container. Default: "unless-stopped"
 #   - container_ports (list of strings, optional): Ports to expose. Example: ["8080:80"]
 #   - container_mounts (list of strings, optional): Managed volume mounts.
@@ -85,7 +85,7 @@
     image: "{{ container_image }}"
     command: "{{ command | default(omit) }}"
     networks: "{{ networks | default(omit) }}"
-    security_opt: "{{ security_opt | default(omit) }}"
+    security_opts: "{{ security_opts | default(omit) }}"
     labels: "{{ labels | default(omit) }}"
     restart_policy: "{{ restart_policy | default(omit) }}"
     ports: "{{ container_ports | default(omit) }}"

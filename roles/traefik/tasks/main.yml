@@ -30,7 +30,7 @@
       - "80:80"
       - "443:443"
     image_pull: true
-    security_opt:
+    security_opts:
       - "no-new-privileges:true"
     container_mounts:
       - /certs
