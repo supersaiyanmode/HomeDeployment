@@ -1,0 +1,9 @@
+- name: Install Docker on Arch Linux
+  community.general.pacman:
+    name:
+      - docker
+      - docker-compose
+      - python-docker
+    state: present
+    update_cache: yes
+  when: assume_docker_installed is not defined

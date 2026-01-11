@@ -1,0 +1,8 @@
+- name: Update Apt cache
+  apt:
+      update_cache: yes
+
+- name: Install packages
+  ansible.builtin.package:
+      name: "{{ packages }}"
+      state: present

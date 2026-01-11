@@ -1,0 +1,15 @@
+- name: "Create directory for mapped directory for {{ item }}"
+  file:
+    path: "{{ mount_binds.prefix }}/{{ item | replace('/', '-') | trim('-') }}"
+    state: directory
+  loop: "{{ mount_binds.paths }}"
+
+- name: "Mount {{ item }}"
+  ansible.posix.mount:
+    path: "{{ item }}"
+    src: "{{ mount_binds.prefix }}/{{ item | replace('/', '-') | trim('-') }}"
+    opts: bind
+    fstype: none
+    state: mounted
+  loop: "{{ mount_binds.paths }}"
+  register: mount_binds_res

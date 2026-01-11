@@ -1,0 +1,9 @@
+- name: Bind disks
+  include_tasks:
+    file: mount_disk.yml
+  when: mounts is defined
+
+- name: Mount binds.
+  include_tasks:
+    file: mount_bind.yml
+  when: mount_binds is defined

@@ -1,0 +1,36 @@
+- include_tasks: install_packages.yml
+  vars:
+    packages:
+      - ca-certificates
+      - curl
+      - gnupg2
+      - lsb-release
+      - python3-docker
+  when: assume_docker_installed is not defined
+
+- name: Add Apt key
+  shell: curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+  when: assume_docker_installed is not defined
+
+- name: Update perms on key
+  file:
+    path: /etc/apt/keyrings/docker.asc
+    mode: u=rw,g=r,o=r
+  when: assume_docker_installed is not defined
+
+- name: Add the repo to apt sources
+  shell: >
+    echo
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  when: assume_docker_installed is not defined
+
+- include_tasks: install_packages.yml
+  vars:
+    packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+  when: assume_docker_installed is not defined

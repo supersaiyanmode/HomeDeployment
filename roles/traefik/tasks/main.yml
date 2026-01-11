@@ -1,0 +1,64 @@
+---
+- name: Create proxy network
+  community.docker.docker_network:
+    name: proxy
+    state: present
+
+- name: Prepare Docker volumes for Traefik
+  include_role:
+    name: utils
+    tasks_from: prepare_docker_volumes.yml
+  vars:
+    container_name: traefik
+    container_mounts:
+      - /certs
+      - /dynamic
+
+- name: Template out Traefik dynamic TLS config
+  template:
+    src: tls.yaml.j2
+    dest: /docker/traefik/dynamic/tls.yaml
+
+- name: Install and run Traefik container
+  include_role:
+    name: utils
+    tasks_from: install_docker_image.yml
+  vars:
+    container_name: traefik
+    container_image: "traefik:v3.6.6"
+    container_ports:
+      - "80:80"
+      - "443:443"
+    image_pull: true
+    security_opt:
+      - "no-new-privileges:true"
+    container_mounts:
+      - /certs
+      - /dynamic
+    custom_mounts:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - name: proxy
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+      - "--providers.file.directory=/dynamic"
+      - "--providers.file.watch=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.traefik-dashboard.rule: "Host(`traefik.{{ lookup('env', 'MAIN_HOST_NAME') }}`)"
+      traefik.http.routers.traefik-dashboard.service: "api@internal"
+      traefik.http.routers.traefik-dashboard.entrypoints: "websecure"
+      traefik.http.routers.traefik-dashboard.tls: "true"
+      traefik.http.middlewares.traefik-auth.basicauth.users: "{{ traefik_dashboard_passwd_hash }}"
+      traefik.http.routers.traefik-dashboard.middlewares: "traefik-auth@docker"

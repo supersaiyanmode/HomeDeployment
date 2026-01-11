@@ -1,0 +1,46 @@
+#
+# Creates host directories for docker volumes.
+#
+# This task prepares the host directories for docker container mounts.
+# It creates a base directory for the container and then creates subdirectories
+# for each of the container mounts.
+#
+# Parameters:
+#   - container_name (string): The name of the container.
+#     Example: "my_app"
+#
+#   - container_mounts (list of strings): A list of paths inside the container
+#     that will be mounted as volumes.
+#     Example: ["/etc/app/config", "/data"]
+#
+
+- name: Create storage location
+  file:
+    path: "/docker/{{container_name}}"
+    state: directory
+
+- name: Construct mapped folders.
+  set_fact:
+    target_paths: >
+      {{ (container_mounts | default([]))
+         | map('regex_replace', '/', '-')
+         | map('regex_replace', '^-', '')
+         | map('regex_replace', '^', '/docker/' + container_name + '/') }}
+
+- name: Create host paths for container mounts
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  loop: "{{ target_paths }}"
+  when: target_paths | length > 0
+
+- name: Join folders
+  set_fact:
+    mapped_paths: >
+      {{ (container_mounts | default([]))
+         | map('regex_replace', '/', '-')
+         | map('regex_replace', '^-', '')
+         | map('regex_replace', '^', '/docker/' + container_name + '/')
+         | zip(container_mounts | default([]))
+         | map('join', ':') }}

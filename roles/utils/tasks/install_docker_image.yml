@@ -1,0 +1,109 @@
+#
+# Installs and runs a docker container.
+#
+# This task installs docker if not present, prepares volumes, pulls the image,
+# and runs the container.
+#
+# Parameters:
+#   - assume_docker_installed (boolean, optional): If true, skips docker installation.
+#   - container_name (string, required): The name of the container.
+#   - container_image (string, required): The docker image to use.
+#   - command (list of strings, optional): The command to run in the container.
+#   - networks (list of strings, optional): The networks to connect the container to.
+#   - labels (dict, optional): A dictionary of labels to add to the container.
+#   - security_opt (list of strings, optional): A list of security options.
+#   - restart_policy (string, optional): The restart policy for the container. Default: "unless-stopped"
+#   - container_ports (list of strings, optional): Ports to expose. Example: ["8080:80"]
+#   - container_mounts (list of strings, optional): Managed volume mounts.
+#   - custom_mounts (list of strings, optional): Custom volume mounts.
+#   - env (dict, optional): Environment variables for the container.
+#   - user (string, optional): The user to run the container as.
+#   - user_groups (list of strings, optional): Groups for the container user.
+#   - devices (list of strings, optional): Devices to map into the container.
+#   - network_mode (string, optional): The network mode for the container.
+#   - capabilities (list of strings, optional): Linux capabilities to add.
+#   - init (boolean, optional): Run an init process inside the container.
+#   - image_pull (boolean, optional): If true, force pulls the image.
+#   - setup_commands (list of dicts, optional): Commands to run inside the container after start.
+#   - container_registry (dict, optional): Docker registry credentials.
+#
+- name: Forward to OS specific docker installation
+  include_tasks:
+    file: "install_docker_{{ ansible_os_family | lower }}.yml"
+  when: assume_docker_installed is not defined
+
+- name: start and enable docker daemon
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: start and enable containerd daemon
+  service:
+    name: containerd
+    state: started
+    enabled: yes
+
+- name: Prepare Docker volumes
+  include_tasks: prepare_docker_volumes.yml
+  when: mapped_paths is not defined
+
+- name: Get mapped devices
+  find:
+    paths: /dev
+    patterns: "{{ devices }}"
+    file_type: any
+  register: find_result
+  when: devices is defined
+
+- name: Setup permissions for custom user
+  file:
+    path: "{{ item }}"
+    owner: "{{ user }}"
+    recurse: yes
+  loop: "{{ target_paths }}"
+  when: user is defined
+
+- name: "Login into {{ container_registry.host }}"
+  docker_login:
+    registry: "{{ container_registry.host }}"
+    username: "{{ container_registry.username }}"
+    password: "{{ lookup('env', container_registry.password_env_key) }}"
+  when: container_registry is defined
+
+- name: Pull the latest image
+  docker_image:
+    name: "{{ container_image }}"
+    source: pull
+    state: present
+    force_source: true
+  when: image_pull is defined and image_pull
+
+- name: "Ensure {{ container_name }} container is running"
+  docker_container:
+    name: "{{ container_name }}"
+    image: "{{ container_image }}"
+    command: "{{ command | default(omit) }}"
+    networks: "{{ networks | default(omit) }}"
+    security_opt: "{{ security_opt | default(omit) }}"
+    labels: "{{ labels | default(omit) }}"
+    restart_policy: "{{ restart_policy | default(omit) }}"
+    ports: "{{ container_ports | default(omit) }}"
+    volumes: "{{ mapped_paths + custom_mounts }}"
+    env: "{{ env | default(omit) }}"
+    user: "{{ user | default(omit) }}"
+    groups: "{{ user_groups | default(omit) }}"
+    devices: "{{ (find_result.files | map(attribute='path') | list) if devices is defined and find_result is defined else omit }}"
+    network_mode: "{{ network_mode | default(omit) }}"
+    capabilities: "{{ capabilities | default(omit) }}"
+    init: "{{ init | default(omit) }}"
+  vars:
+
+- name: "Setup {{ container_name }}"
+  community.docker.docker_container_exec:
+    container: "{{ container_name }}"
+    command: "{{ item.cmd }}"
+    user: "{{ item.user | default('root') }}"
+  loop: "{{ setup_commands }}"
+  when: setup_commands is defined
+
