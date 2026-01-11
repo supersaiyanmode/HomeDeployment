@@ -15,6 +15,12 @@ export INSTALL_QBITTORRENT="false"
 export INSTALL_FORGEJO="false"
 export INSTALL_SEMAPHORE="false"
 
+if [ -f .env ]; then
+  set -a
+  source ./.env
+  set +a
+fi
+
 if [[ "${INSTALL_PIHOLE}" == "true" && -z "${PI_HOLE_ADMIN_PASSWD}" ]]; then
   echo "Need PiHole password" 1>&2
   exit 1
