@@ -1,0 +1,21 @@
+---
+- name: Install and run Dockhand container
+  include_role:
+    name: utils
+    tasks_from: install_docker_image.yml
+  vars:
+    container_name: dockhand
+    container_image: "fnsys/dockhand:latest"
+    image_pull: true
+    custom_mounts:
+      - /var/run/docker.sock:/var/run/docker.sock
+    container_mounts:
+      - /app/data
+    networks:
+      - name: proxy
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.dockhand.rule: "Host(`dockhand.{{ lookup('env', 'MAIN_HOST_NAME') }}`)"
+      traefik.http.routers.dockhand.entrypoints: "websecure"
+      traefik.http.routers.dockhand.tls: "true"
+      traefik.http.services.dockhand.loadbalancer.server.port: "3000"
