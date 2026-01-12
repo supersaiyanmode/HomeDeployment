@@ -1,97 +1,59 @@
 ---
-
-- name: Generate runner secret
-  set_fact:
-    runner_secret: "328766b7fa8f48c6{{ \
-      query('community.general.random_string',\
-            override_all=hexchars, length=24)[0] }}"
-  vars:
-    hexchars: '0123456789abcdef'
-
-- name: Install MySQL
+- name: "Generate Forgejo Docker Compose file"
   include_role:
-    name: supersaiyanmode.ansible_utils.install_mysql
+    name: utils
+    tasks_from: install_docker_compose_raw.yml
   vars:
-     databases:
-       - forgejo
-     users:
-       - name: forgejo
-         password: "{{ forgejo_db_password }}"
-         host: '172.17.%'
-     permissions:
-       - database: forgejo
-         user: forgejo
-         host: '172.17.%'
+    container_name: forgejo
+    docker_compose_content: |
+      networks:
+        forgejo-net:
+          external: false
+        proxy:
+          external: true
 
-- name: Install Forgejo docker container
-  include_role:
-    name: supersaiyanmode.ansible_utils.install_docker_image
-  vars:
-    container_name: git
-    container_image: "codeberg.org/forgejo/forgejo:11"
-    network_mode: "bridge"
-    image_pull: true
-    main_port: 13121
-    container_ports:
-      - "13121:3000"
-      - "13122:22"
-    container_mounts:
-      - /data
-    setup_commands:
-      - cmd: >-
-          forgejo forgejo-cli actions register --name runner --scope HomeWeave
-            --secret "{{ runner_secret }}"
-        user: 1000
-    env:
-      FORGEJO__database__DB_TYPE: mysql
-      FORGEJO__database__HOST: 172.17.0.1
-      FORGEJO__database__USER: "{{ forgejo_db_user }}"
-      FORGEJO__database__PASSWD: "{{ forgejo_db_password }}"
-      FORGEJO__server__DOMAIN: "{{ forgejo_domain }}"
+      services:
+        forgejo:
+          image: codeberg.org/forgejo/forgejo:7
+          container_name: forgejo
+          environment:
+            - USER_UID=1000
+            - USER_GID=1000
+            - FORGEJO__database__DB_TYPE=mysql
+            - FORGEJO__database__HOST=db:3306
+            - FORGEJO__database__NAME=forgejo
+            - FORGEJO__database__USER={{ forgejo_db_user }}
+            - FORGEJO__database__PASSWD={{ forgejo_db_password }}
+            - FORGEJO__server__DOMAIN={{ forgejo_domain }}
+          networks:
+            - forgejo-net
+            - proxy
+          volumes:
+            - "/docker/forgejo/data:/data"
+            - "/etc/timezone:/etc/timezone:ro"
+            - "/etc/localtime:/etc/localtime:ro"
+          ports:
+            - "127.0.0.1:222:22"
+          restart: unless-stopped
+          depends_on:
+            - db
+          labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.forgejo.rule=Host(`{{ forgejo_domain }}`)"
+            - "traefik.http.routers.forgejo.entrypoints=websecure"
+            - "traefik.http.routers.forgejo.tls=true"
+            - "traefik.http.services.forgejo.loadbalancer.server.port=3000"
 
-- name: Install Forgejo runner Docker DIND
-  include_role:
-    name: supersaiyanmode.ansible_utils.install_docker_image
-  vars:
-    container_name: forgejo-docker-dind
-    container_image: "docker:dind"
-    image_pull: true
-    privileged: true
-    command: dockerd -H tcp://0.0.0.0:13375 --tls=false
-    env:
-    assume_docker_installed: true
-
-
-- name: Configure Forgejo runner docker container
-  include_role:
-    name: supersaiyanmode.ansible_utils.install_docker_image
-  vars:
-    container_name: forgejo-runner
-    container_image: "data.forgejo.org/forgejo/runner:11"
-    network_mode: "bridge"
-    image_pull: true
-    command: >-
-        forgejo-runner create-runner-file --instance http://{{ forgejo_domain }}
-          --secret "{{ runner_secret }}"
-    detach: false
-    user: 1000
-    container_mounts:
-      - /data
-    env:
-      DOCKER_HOST: tcp://172.17.0.1:13375
-    assume_docker_installed: true
-
-- name: Install Forgejo runner docker container
-  include_role:
-    name: supersaiyanmode.ansible_utils.install_docker_image
-  vars:
-    container_name: forgejo-runner
-    container_image: "data.forgejo.org/forgejo/runner:11"
-    network_mode: "bridge"
-    image_pull: true
-    command: forgejo-runner daemon
-    container_mounts:
-      - /data
-    env:
-      DOCKER_HOST: tcp://172.17.0.1:13375
-    assume_docker_installed: true
+        db:
+          image: mysql:8
+          container_name: forgejo-db
+          restart: unless-stopped
+          environment:
+            - MYSQL_ROOT_PASSWORD={{ forgejo_db_password }}
+            - MYSQL_USER={{ forgejo_db_user }}
+            - MYSQL_PASSWORD={{ forgejo_db_password }}
+            - MYSQL_DATABASE=forgejo
+          networks:
+            - forgejo-net
+          volumes:
+            - "/docker/forgejo/mysql:/var/lib/mysql"
