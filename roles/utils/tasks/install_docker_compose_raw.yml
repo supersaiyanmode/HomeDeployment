@@ -1,0 +1,37 @@
+#
+# Generates a Docker Compose file by directly writing provided YAML content.
+#
+# This task takes a complete Docker Compose YAML string and writes it to
+# a docker-compose.yml file within the Dockhand stacks directory. This allows
+# Dockhand to discover and manage the service based on a pre-defined Compose file.
+#
+# Parameters:
+#   - container_name (string, required): The name of the service/container,
+#     used to create the subdirectory for the Docker Compose file.
+#     Example: "my_app"
+#
+#   - docker_compose_content (string, required): The full YAML content of the
+#     docker-compose.yml file to be written.
+#     Example: |
+#       version: '3.8'
+#       services:
+#         my_service:
+#           image: my_image:latest
+#           ports:
+#             - "80:80"
+#
+- name: "Ensure stack directory for {{ container_name }} exists"
+  ansible.builtin.file:
+    path: "/docker/dockhand/app-data/stacks/{{ container_name }}"
+    state: directory
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+    mode: '0755'
+
+- name: "Write Docker Compose file for {{ container_name }}"
+  ansible.builtin.copy:
+    content: "{{ docker_compose_content }}"
+    dest: "/docker/dockhand/app-data/stacks/{{ container_name }}/docker-compose.yml"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+    mode: '0644'
