@@ -1,0 +1,16 @@
+---
+- name: Install and run Hawser Agent container
+  include_role:
+    name: utils
+    tasks_from: install_docker_image.yml
+  vars:
+    container_name: hawser-agent
+    container_image: "ghcr.io/finsys/hawser:latest"
+    image_pull: true
+    restart_policy: "unless-stopped"
+    custom_mounts:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env:
+      DOCKHAND_SERVER_URL: "wss://dockhand.{{ lookup('env', 'MAIN_HOST_NAME') }}/api/hawser/connect"
+      TOKEN: "{{ hawser_join_token }}"
+      AGENT_NAME: "{{ inventory_hostname }}"
