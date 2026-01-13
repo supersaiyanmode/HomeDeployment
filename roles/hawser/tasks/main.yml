@@ -10,7 +10,9 @@
     restart_policy: "unless-stopped"
     custom_mounts:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/hosts:/etc/hosts:ro
     env:
       DOCKHAND_SERVER_URL: "wss://dockhand.{{ lookup('env', 'MAIN_HOST_NAME') }}/api/hawser/connect"
       TOKEN: "{{ hawser_join_token }}"
       AGENT_NAME: "{{ inventory_hostname }}"
+      TLS_SKIP_VERIFY: "true"
