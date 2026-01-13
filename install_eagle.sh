@@ -1,4 +1,4 @@
-export MAIN_HOST_NAME=eagle.com
+export MAIN_HOST_NAME=home.base
 export SUBNET="192.168.86.0/24"
 
 export CONFIGURE_BASIC="false"
