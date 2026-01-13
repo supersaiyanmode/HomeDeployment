@@ -87,7 +87,7 @@
     networks: "{{ networks | default(omit) }}"
     security_opts: "{{ security_opts | default(omit) }}"
     labels: "{{ labels | default(omit) }}"
-    restart_policy: "{{ restart_policy | default(omit) }}"
+    restart_policy: "{{ restart_policy | default('unless-stopped') }}"
     ports: "{{ container_ports | default(omit) }}"
     volumes: "{{ mapped_paths + custom_mounts }}"
     env: "{{ env | default(omit) }}"
