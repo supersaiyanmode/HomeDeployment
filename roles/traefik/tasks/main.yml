@@ -56,7 +56,7 @@
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
     labels:
       traefik.enable: "true"
-      traefik.http.routers.traefik-dashboard.rule: "Host(`traefik.{{ lookup('env', 'MAIN_HOST_NAME') }}`)"
+      traefik.http.routers.traefik-dashboard.rule: "Host(`traefik-{{ inventory_hostname }}.{{ lookup('env', 'MAIN_HOST_NAME') }}`)"
       traefik.http.routers.traefik-dashboard.service: "api@internal"
       traefik.http.routers.traefik-dashboard.entrypoints: "websecure"
       traefik.http.routers.traefik-dashboard.tls: "true"
