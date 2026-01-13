@@ -1,47 +1,70 @@
----
+- name: Query Traefik API on each host
+  ansible.builtin.uri:
+    url: "http://{{ item }}:8080/api/routers"
+    method: GET
+    return_content: yes
+  loop: "{{ traefik_api_hosts }}"
+  delegate_to: "{{ item }}"
+  register: traefik_routers_results
 
-#
-# Supported Vars:
-#   - TIMEZONE: Defaults to "Asia/Kolkatta"
-#   - ENABLE_IPV6: Defaults to "true"
-#   - DNS_LISTENING_MODE: Defaults to "all"
-#   - DHCP_ACTIVE: Defaults to "true"
-#   - DHCP_START: Required. Eg: "192.168.86.40"
-#   - DHCP_END: Required. Eg: "192.168.86.250"
-#   - DHCP_ROUTER: Required. Eg: "192.168.86.1"
-#   - CUSTOM_DNS_NAMES: Required. Eg: "192.168.86.2 foo.com;192.168.86.2 bar.com"
-#   - DNS_UPSTREAMS: Defaults to: "8.8.8.8;8.8.4.4"
-#   - PIHOLE_CONTAINER: Defaults to "pihole/pihole:latest"
-#   - PIHOLE_SERVER_HOST: Required. Eg: pihole.foo.com
-#
-# Env vars:
-#   - PI_HOLE_ADMIN_PASSWD: Required. Admin password.
-#
+- name: Process Traefik routes to build a list of CNAME pairs
+  ansible.builtin.set_fact:
+    cname_pairs: >-
+      {{ cname_pairs | default([]) +
+         (item.json |
+          community.general.json_query('[*].rule') |
+          map('regex_replace', 'Host\((.*)\)', '\1') |
+          product([item.item]) |
+          list
+         ) }}
+  loop: "{{ traefik_routers_results.results }}"
+  when: item.status == 200 and item.json is defined
 
-- name: Install Pihole container
+- name: "Build and sort Pi-hole CNAME records string"
+  ansible.builtin.set_fact:
+    pihole_cname_records_string: >-
+      {{ cname_pairs |
+         sort(attribute=0) |
+         map('join', ',') |
+         join(';') }}
+
+- name: "Generate Pi-hole Docker Compose file for Dockhand"
   include_role:
-    name: supersaiyanmode.ansible_utils.install_docker_image
+    name: utils
+    tasks_from: install_docker_compose_raw.yml
   vars:
     container_name: pihole
-    container_image: "{{ PIHOLE_CONTAINER }}"
-    server_host: "{{ PIHOLE_SERVER_HOST }}"
-    main_port: 10080
-    image_pull: true
-    container_mounts:
-      - /etc/pihole
-      - /etc/dnsmasq.d
-    capabilities:
-      - NET_ADMIN
-    env:
-      TZ: "{{ TIMEZONE }}"
-      FTLCONF_dhcp_active: "{{ DHCP_ACTIVE }}"
-      FTLCONF_dhcp_ipv6: "true"
-      FTLCONF_webserver_port: '10080,10081s'
-      FTLCONF_dhcp_start: "{{ DHCP_START }}"
-      FTLCONF_dhcp_end: "{{ DHCP_END }}"
-      FTLCONF_dhcp_router: "{{ DHCP_ROUTER }}"
-      FTLCONF_dns_listeningMode: "all"
-      FTLCONF_dns_hosts: "{{ CUSTOM_DNS_NAMES }}"
-      FTLCONF_dns_upstreams: "{{ DNS_UPSTREAMS }}"
-      FTLCONF_webserver_api_password: "{{ lookup('env', 'PI_HOLE_ADMIN_PASSWD') }}"
-
+    docker_compose_content: |
+      services:
+        pihole:
+          image: "{{ PIHOLE_CONTAINER }}"
+          container_name: pihole
+          environment:
+            TZ: "{{ TIMEZONE }}"
+            FTLCONF_webserver_api_password: "{{ lookup('env', 'PI_HOLE_ADMIN_PASSWD') }}"
+            FTLCONF_dns_cnameRecords: "{{ pihole_cname_records_string }}"
+            FTLCONF_dhcp_active: "{{ DHCP_ACTIVE }}"
+            FTLCONF_dhcp_ipv6: "true"
+            FTLCONF_dhcp_start: "{{ DHCP_START }}"
+            FTLCONF_dhcp_end: "{{ DHCP_END }}"
+            FTLCONF_dhcp_router: "{{ DHCP_ROUTER }}"
+            FTLCONF_dns_upstreams: "{{ DNS_UPSTREAMS }}"
+          volumes:
+            - '/docker/pihole/etc-pihole:/etc/pihole'
+            - '/docker/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
+          ports:
+            - "53:53/tcp"
+            - "53:53/udp"
+          cap_add:
+            - NET_ADMIN
+          networks:
+            - proxy
+          restart: unless-stopped
+          labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.pihole.rule=Host(\`pihole.{{ lookup('env', 'MAIN_HOST_NAME') }}\`)"
+            - "traefik.http.routers.pihole.entrypoints=web"
+            - "traefik.http.services.pihole.loadbalancer.server.port=80"
+      networks:
+        proxy:
+          external: true
