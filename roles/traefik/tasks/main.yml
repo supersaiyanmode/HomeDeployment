@@ -19,6 +19,18 @@
     src: tls.yaml.j2
     dest: /docker/traefik/dynamic/tls.yaml
 
+- name: Copy local.crt to target
+  ansible.builtin.copy:
+    src: certs/local.crt
+    dest: /docker/traefik/certs/local.crt
+    mode: '0644'
+
+- name: Copy local.key to target
+  ansible.builtin.copy:
+    src: certs/local.key
+    dest: /docker/traefik/certs/local.key
+    mode: '0600'
+
 - name: Install and run Traefik container
   include_role:
     name: utils
