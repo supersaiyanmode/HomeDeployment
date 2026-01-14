@@ -8,10 +8,16 @@
   loop: "{{ traefik_api_hosts }}"
   ignore_errors: true
 
+- name: Initialize cname_pairs with static entry
+  ansible.builtin.set_fact:
+    cname_pairs:
+      - ["pihole.{{ lookup('env', 'MAIN_HOST_NAME') }}", "eagle"]
+
 - name: Process Traefik routes to build a list of CNAME pairs
   ansible.builtin.set_fact:
     cname_pairs: >-
-      {{ (item.json |
+      {{ cname_pairs +
+         (item.json |
           community.general.json_query("[?contains(rule, 'Host(`')].rule") |
           map('regex_replace', 'Host\(`(.*?)`\)', '\1') |
           product([item.item]) |
