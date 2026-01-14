@@ -5,6 +5,7 @@
     tasks_from: install_docker_compose_raw.yml
   vars:
     container_name: forgejo
+    host: nighthawk
     docker_compose_content: |
       networks:
         forgejo-net:
