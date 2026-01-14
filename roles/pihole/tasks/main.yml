@@ -1,20 +1,19 @@
 ---
 - name: "Query Traefik API on each host"
   ansible.builtin.uri:
-    url: "http://{{ item }}:8080/api/routers"
+    url: "http://{{ item }}:8080/api/http/routers"
     method: GET
     return_content: yes
-  loop: "{{ traefik_api_hosts }}"
-  delegate_to: "{{ item }}"
   register: traefik_routers_results
+  loop: "{{ traefik_api_hosts }}"
+  ignore_errors: true
 
 - name: Process Traefik routes to build a list of CNAME pairs
   ansible.builtin.set_fact:
     cname_pairs: >-
-      {{ cname_pairs | default([]) +
-         (item.json |
+      {{ (item.json |
           community.general.json_query('[].rule') |
-          map('regex_replace', 'Host\((.*)\)', '\1') |
+          map('regex_replace', 'Host\(`(.*?)`\)', '\1') |
           product([item.item]) |
           list
          ) }}
@@ -35,7 +34,7 @@
     tasks_from: install_docker_compose_raw.yml
   vars:
     container_name: pihole
-    host: "{{ groups['pihole_hosts'][0] }}" # The actual pihole host (eagle)
+    host: eagle
     docker_compose_content: |
       services:
         pihole:
@@ -64,7 +63,7 @@
           restart: unless-stopped
           labels:
             - "traefik.enable=true"
-            - "traefik.http.routers.pihole.rule=Host(\`pihole.{{ lookup('env', 'MAIN_HOST_NAME') }}\`)"
+            - "traefik.http.routers.pihole.rule=Host(`pihole.{{ lookup('env', 'MAIN_HOST_NAME') }}`)"
             - "traefik.http.routers.pihole.entrypoints=web"
             - "traefik.http.services.pihole.loadbalancer.server.port=80"
       networks:
