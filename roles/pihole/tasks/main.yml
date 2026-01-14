@@ -26,6 +26,10 @@
   loop: "{{ traefik_routers_results.results }}"
   when: item.status == 200 and item.json is defined
 
+- name: Remove duplicate CNAME entries
+  ansible.builtin.set_fact:
+    cname_pairs: "{{ cname_pairs | map('to_json') | unique | map('from_json') }}"
+
 - name: "Build and sort Pi-hole CNAME records string"
   ansible.builtin.set_fact:
     pihole_cname_records_string: >-
