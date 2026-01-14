@@ -10,6 +10,10 @@
 #     used to create the subdirectory for the Docker Compose file.
 #     Example: "my_app"
 #
+#   - host (string, required): The hostname under which this stack should be
+#     organized in Dockhand.
+#     Example: "nighthawk"
+#
 #   - docker_compose_content (string, required): The full YAML content of the
 #     docker-compose.yml file to be written.
 #     Example: |
@@ -22,7 +26,7 @@
 #
 - name: "Ensure stack directory for {{ container_name }} exists"
   ansible.builtin.file:
-    path: "/docker/dockhand/app-data/stacks/{{ container_name }}"
+    path: "/docker/dockhand/app-data/stacks/{{ host }}/{{ container_name }}"
     state: directory
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
@@ -31,7 +35,7 @@
 - name: "Write Docker Compose file for {{ container_name }}"
   ansible.builtin.copy:
     content: "{{ docker_compose_content }}"
-    dest: "/docker/dockhand/app-data/stacks/{{ container_name }}/docker-compose.yml"
+    dest: "/docker/dockhand/app-data/stacks/{{ host }}/{{ container_name }}/docker-compose.yml"
     owner: "{{ lookup('env', 'USER') }}"
     group: "{{ lookup('env', 'USER') }}"
     mode: '0644'
