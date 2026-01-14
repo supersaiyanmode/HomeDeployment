@@ -1,4 +1,5 @@
-- name: Query Traefik API on each host
+---
+- name: "Query Traefik API on each host"
   ansible.builtin.uri:
     url: "http://{{ item }}:8080/api/routers"
     method: GET
@@ -12,7 +13,7 @@
     cname_pairs: >-
       {{ cname_pairs | default([]) +
          (item.json |
-          community.general.json_query('[*].rule') |
+          community.general.json_query('[].rule') |
           map('regex_replace', 'Host\((.*)\)', '\1') |
           product([item.item]) |
           list
@@ -34,6 +35,7 @@
     tasks_from: install_docker_compose_raw.yml
   vars:
     container_name: pihole
+    host: "{{ groups['pihole_hosts'][0] }}" # The actual pihole host (eagle)
     docker_compose_content: |
       services:
         pihole:

@@ -29,6 +29,7 @@
     container_ports:
       - "80:80"
       - "443:443"
+      - "8080:8080"
     image_pull: true
     security_opts:
       - "no-new-privileges:true"
@@ -42,6 +43,7 @@
       - name: proxy
     command:
       - "--api.dashboard=true"
+      - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=proxy"
