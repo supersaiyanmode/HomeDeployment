@@ -14,6 +14,7 @@ export INSTALL_TAILSCALE="false"
 export INSTALL_QBITTORRENT="false"
 export INSTALL_FORGEJO="false"
 export INSTALL_SEMAPHORE="false"
+export INSTALL_HAWSER="false"
 
 if [ -f .env ]; then
   set -a
@@ -58,6 +59,11 @@ fi
 
 if [[ "${INSTALL_SEMAPHORE}" == "true" && -z "${SEMAPHORE_ADMIN_PASSWD}" ]]; then
   echo "Need Semaphore Admin password" 1>&2
+  exit 1
+fi
+
+if [[ "${INSTALL_HAWSER}" == "true" && -z "${HAWSER_JOIN_TOKEN}" ]]; then
+  echo "Need Hawser Join Token." 1>&2
   exit 1
 fi
 

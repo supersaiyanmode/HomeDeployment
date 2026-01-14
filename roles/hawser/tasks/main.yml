@@ -15,4 +15,5 @@
       DOCKHAND_SERVER_URL: "wss://dockhand.{{ lookup('env', 'MAIN_HOST_NAME') }}/api/hawser/connect"
       TOKEN: "{{ hawser_join_token }}"
       AGENT_NAME: "{{ inventory_hostname }}"
+      AGENT_ID: "{{ hawser_agent_id }}"
       TLS_SKIP_VERIFY: "true"
