@@ -40,6 +40,7 @@
         pihole:
           image: "{{ PIHOLE_CONTAINER }}"
           container_name: pihole
+          network_mode: host
           environment:
             TZ: "{{ TIMEZONE }}"
             FTLCONF_webserver_api_password: "{{ lookup('env', 'PI_HOLE_ADMIN_PASSWD') }}"
@@ -51,22 +52,10 @@
             FTLCONF_dhcp_router: "{{ DHCP_ROUTER }}"
             FTLCONF_dns_upstreams: "{{ DNS_UPSTREAMS }}"
             FTLCONF_dns_listeningMode: "all"
+            FTLCONF_webserver_port: '10080,10081s'
           volumes:
             - '/docker/pihole/etc-pihole:/etc/pihole'
             - '/docker/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
-          ports:
-            - "53:53/tcp"
-            - "53:53/udp"
           cap_add:
             - NET_ADMIN
-          networks:
-            - proxy
           restart: unless-stopped
-          labels:
-            - "traefik.enable=true"
-            - "traefik.http.routers.pihole.rule=Host(`pihole.{{ lookup('env', 'MAIN_HOST_NAME') }}`)"
-            - "traefik.http.routers.pihole.entrypoints=web"
-            - "traefik.http.services.pihole.loadbalancer.server.port=80"
-      networks:
-        proxy:
-          external: true
