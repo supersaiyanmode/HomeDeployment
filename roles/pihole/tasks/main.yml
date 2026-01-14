@@ -12,7 +12,7 @@
   ansible.builtin.set_fact:
     cname_pairs: >-
       {{ (item.json |
-          community.general.json_query('[].rule') |
+          community.general.json_query("[?contains(rule, 'Host(`')].rule") |
           map('regex_replace', 'Host\(`(.*?)`\)', '\1') |
           product([item.item]) |
           list
@@ -50,6 +50,7 @@
             FTLCONF_dhcp_end: "{{ DHCP_END }}"
             FTLCONF_dhcp_router: "{{ DHCP_ROUTER }}"
             FTLCONF_dns_upstreams: "{{ DNS_UPSTREAMS }}"
+            FTLCONF_dns_listeningMode: "all"
           volumes:
             - '/docker/pihole/etc-pihole:/etc/pihole'
             - '/docker/pihole/etc-dnsmasq.d:/etc/dnsmasq.d'
