@@ -164,6 +164,7 @@
           restart: unless-stopped
           volumes:
             - docker_certs:/certs
+            - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
           networks:
             - forgejo-internal
 
