@@ -1,0 +1,7 @@
+---
+- name: Install basic packages
+  include_role:
+    name: utils
+    tasks_from: install_packages.yml
+  vars:
+    packages: "{{ basic_packages[ansible_os_family] }}"

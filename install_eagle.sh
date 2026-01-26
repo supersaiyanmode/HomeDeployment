@@ -3,7 +3,7 @@ export SUBNET="192.168.86.0/24"
 
 export CONFIGURE_BASIC="false"
 export CONFIGURE_GPIO="false"
-export INSTALL_HTTP="false"
+
 export INSTALL_MYSQL="false"
 export INSTALL_PIHOLE="false"
 export INSTALL_NEXTCLOUD="false"
@@ -14,6 +14,8 @@ export INSTALL_TAILSCALE="false"
 export INSTALL_QBITTORRENT="false"
 export INSTALL_FORGEJO="false"
 export INSTALL_SEMAPHORE="false"
+export INSTALL_TRAEFIK="false"
+export INSTALL_DOCKHAND="false"
 export INSTALL_HAWSER="false"
 
 if [ -f .env ]; then

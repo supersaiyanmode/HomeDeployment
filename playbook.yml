@@ -4,14 +4,14 @@
    become_user: root
    become_method: sudo
    roles:
+     - role: configure_basic
+       when: configure_basic is defined and configure_basic
+
      - role: configure_hdd
        when:  configure_hdd is defined and configure_hdd
 
      - role: configure_gpio
        when:  configure_gpio is defined and configure_gpio
-
-     - role: supersaiyanmode.ansible_utils.install_http
-       when: configure_http is defined and configure_http
 
      - role: pihole
        when: install_pihole is defined and install_pihole
@@ -45,3 +45,6 @@
 
      - role: dockhand
        when: install_dockhand is defined and install_dockhand
+
+     - role: hawser
+       when: install_hawser is defined and install_hawser
