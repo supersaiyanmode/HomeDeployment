@@ -1,13 +1,12 @@
 export MAIN_HOST_NAME=home.base
 export SUBNET="192.168.86.0/24"
 
-export CONFIGURE_BASIC="true"
+export CONFIGURE_BASIC="false"
 export CONFIGURE_GPIO="false"
-export CONFIGURE_DOCKER="true"
+export CONFIGURE_DOCKER="false"
 export INSTALL_TRAEFIK="false"
 export INSTALL_DOCKHAND="false"
 export INSTALL_HAWSER="false"
-
 export INSTALL_PIHOLE="false"
 export INSTALL_NEXTCLOUD="false"
 export INSTALL_JELLYFIN="false"
