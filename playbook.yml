@@ -22,6 +22,12 @@
      - role: pihole
        when: install_pihole is defined and install_pihole
 
+     - role: dockhand
+       when: install_dockhand is defined and install_dockhand
+
+     - role: hawser
+       when: install_hawser is defined and install_hawser
+
      - role: nextcloud
        when: install_nextcloud is defined and install_nextcloud
 
@@ -46,8 +52,3 @@
      - role: semaphore
        when: install_semaphore is defined and install_semaphore
 
-     - role: dockhand
-       when: install_dockhand is defined and install_dockhand
-
-     - role: hawser
-       when: install_hawser is defined and install_hawser
