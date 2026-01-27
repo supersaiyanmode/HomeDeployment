@@ -5,3 +5,6 @@
     tasks_from: install_packages.yml
   vars:
     packages: "{{ basic_packages[ansible_os_family] }}"
+
+- name: Include certificate trust tasks
+  include_tasks: trust_cert.yml

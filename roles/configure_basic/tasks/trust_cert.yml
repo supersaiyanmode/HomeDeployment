@@ -1,0 +1,34 @@
+---
+# Debian/Ubuntu specific tasks
+- name: Configure certificate trust for Debian/Ubuntu
+  block:
+    - name: Ensure /usr/local/share/ca-certificates directory exists
+      ansible.builtin.file:
+        path: /usr/local/share/ca-certificates/
+        state: directory
+        mode: '0755'
+
+    - name: Copy self-signed certificate to trusted store
+      ansible.builtin.copy:
+        src: certs/local.crt
+        dest: /usr/local/share/ca-certificates/local.crt
+        mode: '0644'
+
+    - name: Update CA certificates
+      ansible.builtin.command: update-ca-certificates
+      changed_when: true
+  when: ansible_os_family == "Debian"
+
+# Arch Linux specific tasks
+- name: Configure certificate trust for Arch Linux
+  block:
+    - name: Copy self-signed certificate to temporary location
+      ansible.builtin.copy:
+        src: certs/local.crt
+        dest: /tmp/local.crt
+        mode: '0644'
+
+    - name: Trust certificate anchor
+      ansible.builtin.command: trust anchor --store /tmp/local.crt
+      changed_when: true
+  when: ansible_os_family == "Archlinux"
