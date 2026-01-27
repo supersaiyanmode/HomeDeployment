@@ -11,6 +11,7 @@ basic_packages:
     - jq
     - python3
     - python3-requests
+    - tmux
   Archlinux:
     - vim
     - git
@@ -22,3 +23,4 @@ basic_packages:
     - jq
     - python
     - python-requests
+    - tmux

@@ -11,7 +11,13 @@
        when:  configure_hdd is defined and configure_hdd
 
      - role: configure_gpio
-       when:  configure_gpio is defined and configure_gpio
+       when: configure_gpio is defined and configure_gpio
+
+     - role: install_docker
+       when: install_docker is defined and install_docker
+
+     - role: traefik
+       when: install_traefik is defined and install_traefik
 
      - role: pihole
        when: install_pihole is defined and install_pihole
@@ -39,9 +45,6 @@
 
      - role: semaphore
        when: install_semaphore is defined and install_semaphore
-
-     - role: traefik
-       when: install_traefik is defined and install_traefik
 
      - role: dockhand
        when: install_dockhand is defined and install_dockhand

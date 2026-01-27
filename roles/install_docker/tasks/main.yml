@@ -1,0 +1,7 @@
+---
+- name: Include geerlingguy.docker role
+  ansible.builtin.include_role:
+    name: geerlingguy.docker
+  vars:
+    docker_install_compose: false
+    docker_edition: 'ce'

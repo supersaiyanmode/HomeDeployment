@@ -1,10 +1,13 @@
 export MAIN_HOST_NAME=home.base
 export SUBNET="192.168.86.0/24"
 
-export CONFIGURE_BASIC="false"
+export CONFIGURE_BASIC="true"
 export CONFIGURE_GPIO="false"
+export CONFIGURE_DOCKER="true"
+export INSTALL_TRAEFIK="false"
+export INSTALL_DOCKHAND="false"
+export INSTALL_HAWSER="false"
 
-export INSTALL_MYSQL="false"
 export INSTALL_PIHOLE="false"
 export INSTALL_NEXTCLOUD="false"
 export INSTALL_JELLYFIN="false"
@@ -14,9 +17,6 @@ export INSTALL_TAILSCALE="false"
 export INSTALL_QBITTORRENT="false"
 export INSTALL_FORGEJO="false"
 export INSTALL_SEMAPHORE="false"
-export INSTALL_TRAEFIK="false"
-export INSTALL_DOCKHAND="false"
-export INSTALL_HAWSER="false"
 
 if [ -f .env ]; then
   set -a

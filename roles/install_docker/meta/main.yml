@@ -1,0 +1,4 @@
+---
+dependencies:
+  - src: geerlingguy.docker
+    version: master # Or a specific version/tag if needed
