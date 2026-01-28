@@ -24,3 +24,4 @@ basic_packages:
     - python
     - python-requests
     - tmux
+    - ca-certificates-utils

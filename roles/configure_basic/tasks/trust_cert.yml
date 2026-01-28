@@ -10,8 +10,8 @@
 
     - name: Copy self-signed certificate to trusted store
       ansible.builtin.copy:
-        src: certs/local.crt
-        dest: /usr/local/share/ca-certificates/local.crt
+        src: certs/rootCA.crt
+        dest: /usr/local/share/ca-certificates/rootCA.crt
         mode: '0644'
 
     - name: Update CA certificates
@@ -22,13 +22,20 @@
 # Arch Linux specific tasks
 - name: Configure certificate trust for Arch Linux
   block:
-    - name: Copy self-signed certificate to temporary location
+    - name: Ensure /etc/ca-certificates/trust-source/anchors directory exists
+      ansible.builtin.file:
+        path: /etc/ca-certificates/trust-source/anchors/
+        state: directory
+        mode: '0755'
+
+    - name: Copy self-signed certificate to trusted store
       ansible.builtin.copy:
-        src: certs/local.crt
-        dest: /tmp/local.crt
+        src: certs/rootCA.crt
+        dest: /etc/ca-certificates/trust-source/anchors/rootCA.crt
         mode: '0644'
 
     - name: Trust certificate anchor
-      ansible.builtin.command: trust anchor --store /tmp/local.crt
+      ansible.builtin.command: update-ca-trust
       changed_when: true
+
   when: ansible_os_family == "Archlinux"

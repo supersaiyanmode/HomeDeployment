@@ -21,13 +21,13 @@
 
 - name: Copy local.crt to target
   ansible.builtin.copy:
-    src: certs/local.crt
+    src: certs/home.base.crt
     dest: /docker/traefik/certs/local.crt
     mode: '0644'
 
 - name: Copy local.key to target
   ansible.builtin.copy:
-    src: certs/local.key
+    src: certs/home.base.key
     dest: /docker/traefik/certs/local.key
     mode: '0600'
 

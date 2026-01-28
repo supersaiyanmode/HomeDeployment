@@ -68,4 +68,4 @@ if [[ "${INSTALL_HAWSER}" == "true" && -z "${HAWSER_JOIN_TOKEN}" ]]; then
   exit 1
 fi
 
-ansible-playbook -i hosts.yml playbook.yml
+ANSIBLE_DISPLAY_SKIPPED_HOSTS=false ansible-playbook -i hosts.yml playbook.yml
