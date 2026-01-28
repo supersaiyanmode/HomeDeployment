@@ -63,9 +63,4 @@ if [[ "${INSTALL_SEMAPHORE}" == "true" && -z "${SEMAPHORE_ADMIN_PASSWD}" ]]; the
   exit 1
 fi
 
-if [[ "${INSTALL_HAWSER}" == "true" && -z "${HAWSER_JOIN_TOKEN}" ]]; then
-  echo "Need Hawser Join Token." 1>&2
-  exit 1
-fi
-
 ANSIBLE_DISPLAY_SKIPPED_HOSTS=false ansible-playbook -i hosts.yml playbook.yml
