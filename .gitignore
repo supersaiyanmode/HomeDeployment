@@ -1,2 +1,5 @@
 .env
-certs/local.*
+certs/*.csr
+certs/*.crt
+certs/*.key
+certs/*.srl
