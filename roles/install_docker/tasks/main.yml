@@ -1,7 +1,24 @@
 ---
+- name: Ensure Docker custom CA directory exists
+  ansible.builtin.file:
+    path: /etc/docker/certs.d/git.home.base/
+    state: directory
+    mode: '0755'
+
+- name: Copy custom root CA certificate for git.home.base
+  ansible.builtin.copy:
+    src: certs/rootCA.crt
+    dest: /etc/docker/certs.d/git.home.base/ca.crt
+    mode: '0644'
+
 - name: Include geerlingguy.docker role
   ansible.builtin.include_role:
     name: geerlingguy.docker
   vars:
     docker_install_compose: false
     docker_edition: 'ce'
+
+- name: Ensure Docker service is restarted after CA update
+  ansible.builtin.service:
+    name: docker
+    state: restarted
