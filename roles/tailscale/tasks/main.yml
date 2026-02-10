@@ -1,22 +1,31 @@
 ---
-
-- name: Tailscale docker container
+- name: "Generate Tailscale compose config"
   include_role:
-    name: supersaiyanmode.ansible_utils.install_docker_image
+    name: utils
+    tasks_from: install_docker_compose_raw.yml
   vars:
     container_name: tailscale
-    container_image: "tailscale/tailscale:latest"
-    image_pull: true
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    capabilities:
-      - NET_ADMIN
-    container_mounts:
-      - /tailscale-config
-    env:
-      TS_STATE_DIR: /tailscale-config
-      TS_ACCEPT_DNS: 'true'
-      TS_AUTHKEY: "{{ TAILSCALE_AUTHKEY }}"
-      TS_HOSTNAME: "{{ TAILSCALE_HOSTNAME }}"
-      TS_ROUTES: "{{ TAILSCALE_SUBNET }}"
-      TS_EXTRA_ARGS: "{{ '--advertise-exit-node' if TAILSCALE_EXIT_NODE else omit }}"
+    host: "eagle"
+    docker_compose_content: |
+      networks:
+        proxy:
+          external: true
+      services:
+        tailscale:
+          image: "{{ tailscale_image }}"
+          container_name: tailscale
+          restart: unless-stopped
+          network_mode: bridge
+          devices:
+            - /dev/net/tun:/dev/net/tun
+          cap_add:
+            - NET_ADMIN
+          volumes:
+            - /docker/tailscale/tailscale-config:/tailscale-config
+          environment:
+            TS_STATE_DIR: /tailscale-config
+            TS_ACCEPT_DNS: 'true'
+            TS_AUTHKEY: "{{ lookup('env', 'TAILSCALE_AUTH_KEY') }}"
+            TS_HOSTNAME: "{{ lookup('env', 'MAIN_HOST_NAME') }}"
+            TS_ROUTES: "{{ lookup('env', 'SUBNET') }}"
+            TS_EXTRA_ARGS: "--advertise-exit-node"
