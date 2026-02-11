@@ -9,6 +9,7 @@
     image_pull: true
     custom_mounts:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
     container_mounts:
       - /app/data
     networks:
