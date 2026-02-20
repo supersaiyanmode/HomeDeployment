@@ -52,3 +52,5 @@
      - role: semaphore
        when: install_semaphore is defined and install_semaphore
 
+     - role: opencloud
+       when: install_opencloud is defined and install_opencloud

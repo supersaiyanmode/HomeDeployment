@@ -2,6 +2,7 @@ export MAIN_HOST_NAME=home.base
 export SUBNET="192.168.86.0/24"
 
 export CONFIGURE_BASIC="false"
+export CONFIGURE_HDD="false"
 export CONFIGURE_GPIO="false"
 export CONFIGURE_DOCKER="false"
 export INSTALL_TRAEFIK="false"
@@ -16,6 +17,7 @@ export INSTALL_TAILSCALE="false"
 export INSTALL_QBITTORRENT="false"
 export INSTALL_FORGEJO="false"
 export INSTALL_SEMAPHORE="false"
+export INSTALL_OPENCLOUD="false"
 
 if [ -f .env ]; then
   set -a
@@ -60,6 +62,11 @@ fi
 
 if [[ "${INSTALL_SEMAPHORE}" == "true" && -z "${SEMAPHORE_ADMIN_PASSWD}" ]]; then
   echo "Need Semaphore Admin password" 1>&2
+  exit 1
+fi
+
+if [[ "${INSTALL_OPENCLOUD}" == "true" && -z "${OC_ADMIN_PASSWORD}" ]]; then
+  echo "Need OpenCloud Admin password" 1>&2
   exit 1
 fi
 

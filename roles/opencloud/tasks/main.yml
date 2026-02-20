@@ -1,0 +1,44 @@
+---
+- name: get hdd gid
+  getent:
+    database: group
+    key: hdd
+
+- name: "Generate OpenCloud Docker Compose file"
+  include_role:
+    name: utils
+    tasks_from: install_docker_compose_raw.yml
+  vars:
+    container_name: opencloud
+    host: nighthawk
+    docker_compose_content: |
+      networks:
+        proxy:
+          external: true
+
+      services:
+        opencloud:
+          image: opencloudeu/opencloud-rolling:latest
+          container_name: opencloud
+          environment:
+            OC_URL: "https://{{ OC_DOMAIN }}"
+            IDM_ADMIN_PASSWORD: "{{ OC_ADMIN_PASSWORD }}"
+            OC_INSECURE: "true"
+            OC_LOG_PRETTY: "true"
+            PROXY_TLS: "false"
+            PROXY_ENABLE_BASIC_AUTH: "true"
+          volumes:
+            - {{ OC_DATA_DIR }}:/var/lib/opencloud
+            - /docker/opencloud/etc-opencloud:/etc/opencloud
+          networks:
+            - proxy
+            - default
+          restart: unless-stopped
+          group_add:
+            - "{{ getent_group['hdd'][1] }}"
+          labels:
+            - "traefik.enable=true"
+            - "traefik.http.routers.opencloud.rule=Host(`{{ OC_DOMAIN }}`)"
+            - "traefik.http.routers.opencloud.entrypoints=websecure"
+            - "traefik.http.routers.opencloud.tls=true"
+            - "traefik.http.services.opencloud.loadbalancer.server.port=3000"
