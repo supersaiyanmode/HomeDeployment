@@ -4,6 +4,29 @@
     database: group
     key: hdd
 
+- name: Create opencloud user
+  include_role:
+    name: utils
+    tasks_from: install_user.yml
+  vars:
+    username: opencloud
+    user_groups:
+      - hdd
+
+- name: get opencloud user info
+  getent:
+    database: passwd
+    key: opencloud
+
+- name: Create opencloud config directory
+  file:
+    path: "/docker/opencloud"
+    state: directory
+    owner: opencloud
+    group: opencloud
+    mode: '0775'
+    recurse: yes
+
 - name: "Generate OpenCloud Docker Compose file"
   include_role:
     name: utils
@@ -18,21 +41,26 @@
 
       services:
         opencloud:
-          image: opencloudeu/opencloud-rolling:latest
+          image: opencloudeu/opencloud:2
           container_name: opencloud
+          user: "{{ getent_passwd['opencloud'][1] }}:{{ getent_passwd['opencloud'][2] }}"
           environment:
             OC_URL: "https://{{ OC_DOMAIN }}"
             IDM_ADMIN_PASSWORD: "{{ OC_ADMIN_PASSWORD }}"
-            OC_INSECURE: "true"
+            OC_INSECURE: "false"
             OC_LOG_PRETTY: "true"
             PROXY_TLS: "false"
             PROXY_ENABLE_BASIC_AUTH: "true"
           volumes:
             - {{ OC_DATA_DIR }}:/var/lib/opencloud
             - /docker/opencloud/etc-opencloud:/etc/opencloud
+            - /etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro
           networks:
             - proxy
             - default
+          entrypoint:
+            - /bin/sh
+          command: ["-c", "opencloud init || true; opencloud server"]
           restart: unless-stopped
           group_add:
             - "{{ getent_group['hdd'][1] }}"
@@ -41,4 +69,4 @@
             - "traefik.http.routers.opencloud.rule=Host(`{{ OC_DOMAIN }}`)"
             - "traefik.http.routers.opencloud.entrypoints=websecure"
             - "traefik.http.routers.opencloud.tls=true"
-            - "traefik.http.services.opencloud.loadbalancer.server.port=3000"
+            - "traefik.http.services.opencloud.loadbalancer.server.port=9200"
