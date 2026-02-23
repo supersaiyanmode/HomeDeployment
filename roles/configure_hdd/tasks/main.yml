@@ -4,13 +4,16 @@
   vars:
     username: hdd
 
-- include_role:
-    name: supersaiyanmode.ansible_utils.configure_mounts
-  vars:
-    mounts:
-      - path: "{{ hdd_mount_path }}"
-        dev: "{{ hdd_device }}"
-        fstype: "{{ hdd_fs_type }}"
-        opts: defaults,rw,gid=hdd,umask=0007
-        mounted: yes
+- name: Check HDD mount status
+  set_fact:
+    hdd_mount: "{{ ansible_mounts | selectattr('mount', 'equalto', hdd_mount_path) | first | default(none) }}"
+
+- name: Mount or remount HDD if necessary
+  ansible.posix.mount:
+    path: "{{ hdd_mount_path }}"
+    src: "{{ hdd_device }}"
+    fstype: "{{ hdd_fs_type }}"
+    opts: defaults,rw,gid=hdd,umask=0007
+    state: "{{ 'remounted' if (hdd_mount and 'rw' not in hdd_mount.options) else 'mounted' }}"
+  when: hdd_mount is none or 'rw' not in hdd_mount.options
 
