@@ -6,51 +6,68 @@
    roles:
      - role: configure_basic
        when: configure_basic is defined and configure_basic
+       tags: [basic, configure_basic]
 
      - role: configure_hdd
        when:  configure_hdd is defined and configure_hdd
+       tags: [hdd, configure_hdd]
 
      - role: configure_gpio
        when: configure_gpio is defined and configure_gpio
+       tags: [gpio, configure_gpio]
 
      - role: install_docker
        when: install_docker is defined and install_docker
+       tags: [docker, install_docker]
 
      - role: traefik
        when: install_traefik is defined and install_traefik
+       tags: [traefik, install_traefik]
 
      - role: pihole
        when: install_pihole is defined and install_pihole
+       tags: [pihole, install_pihole]
 
      - role: dockhand
        when: install_dockhand is defined and install_dockhand
+       tags: [dockhand, install_dockhand]
 
      - role: hawser
        when: install_hawser is defined and install_hawser
+       tags: [hawser, install_hawser]
 
      - role: nextcloud
        when: install_nextcloud is defined and install_nextcloud
+       tags: [nextcloud, install_nextcloud]
 
      - role: jellyfin
        when: install_jellyfin is defined and install_jellyfin
+       tags: [jellyfin, install_jellyfin]
 
      - role: tailscale
        when: install_tailscale is defined and install_tailscale
+       tags: [tailscale, install_tailscale]
 
      - role: qbittorrent
        when: install_qbittorrent is defined and install_qbittorrent
+       tags: [qbittorrent, install_qbittorrent]
 
      - role: github_actions_self_hosted
        when: install_github_runner is defined and install_github_runner
+       tags: [github_runner, install_github_runner]
 
      - role: wud
        when: "lookup('env', 'INSTALL_WUD') == 'true'"
+       tags: [wud, install_wud]
 
      - role: forgejo
        when: install_forgejo is defined and install_forgejo
+       tags: [forgejo, install_forgejo]
 
      - role: semaphore
        when: install_semaphore is defined and install_semaphore
+       tags: [semaphore, install_semaphore]
 
      - role: opencloud
        when: install_opencloud is defined and install_opencloud
+       tags: [opencloud, install_opencloud]
