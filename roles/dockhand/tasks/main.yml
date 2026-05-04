@@ -16,7 +16,7 @@
       - name: proxy
     labels:
       traefik.enable: "true"
-      traefik.http.routers.dockhand.rule: "Host(`dockhand.{{ lookup('env', 'MAIN_HOST_NAME') }}`)"
+      traefik.http.routers.dockhand.rule: "Host(`{{ DOCKHAND_DOMAIN }}`)"
       traefik.http.routers.dockhand.entrypoints: "websecure"
       traefik.http.routers.dockhand.tls: "true"
       traefik.http.services.dockhand.loadbalancer.server.port: "3000"
