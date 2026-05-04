@@ -1,4 +1,9 @@
 ---
+- name: Ensure Pi-hole admin password is provided
+  ansible.builtin.assert:
+    that: PI_HOLE_ADMIN_PASSWD != ""
+    fail_msg: "PI_HOLE_ADMIN_PASSWD is not set in the inventory (check environment)."
+
 - name: "Query Traefik API on each host"
   ansible.builtin.uri:
     url: "http://{{ item }}:8080/api/http/routers"
@@ -11,7 +16,7 @@
 - name: Initialize cname_pairs with static entry
   ansible.builtin.set_fact:
     cname_pairs:
-      - ["pihole.{{ lookup('env', 'MAIN_HOST_NAME') }}", "eagle"]
+      - ["{{ PIHOLE_DOMAIN }}", "{{ PIHOLE_TARGET_HOST }}"]
 
 - name: Process Traefik routes to build a list of CNAME pairs
   ansible.builtin.set_fact:
@@ -44,7 +49,7 @@
     tasks_from: install_docker_compose_raw.yml
   vars:
     container_name: pihole
-    host: eagle
+    host: "{{ PIHOLE_TARGET_HOST }}"
     docker_compose_content: |
       services:
         pihole:
@@ -53,7 +58,7 @@
           network_mode: host
           environment:
             TZ: "{{ TIMEZONE }}"
-            FTLCONF_webserver_api_password: "{{ lookup('env', 'PI_HOLE_ADMIN_PASSWD') }}"
+            FTLCONF_webserver_api_password: "{{ PI_HOLE_ADMIN_PASSWD }}"
             FTLCONF_dns_cnameRecords: "{{ pihole_cname_records_string }}"
             FTLCONF_dhcp_active: "{{ DHCP_ACTIVE }}"
             FTLCONF_dhcp_ipv6: "true"
@@ -74,4 +79,4 @@
             - "traefik.http.routers.pihole.rule=Host(`{{ PIHOLE_DOMAIN }}`)"
             - "traefik.http.routers.pihole.entrypoints=websecure"
             - "traefik.http.routers.pihole.tls=true"
-            - "traefik.http.services.pihole.loadbalancer.server.url=http://eagle:10080"
+            - "traefik.http.services.pihole.loadbalancer.server.url=http://{{ PIHOLE_TARGET_HOST }}:10080"
