@@ -1,2 +1,0 @@
----
-TRAEFIK_SERVER_HOST: "traefik.{{ lookup('env', 'MAIN_HOST_NAME') }}"
