@@ -1,4 +1,9 @@
 ---
+- name: Ensure Tailscale auth key is provided
+  ansible.builtin.assert:
+    that: TAILSCALE_AUTH_KEY != ""
+    fail_msg: "TAILSCALE_AUTH_KEY is not set in the inventory (check environment)."
+
 - name: "Generate Tailscale compose config"
   include_role:
     name: utils
@@ -25,7 +30,7 @@
           environment:
             TS_STATE_DIR: /tailscale-config
             TS_ACCEPT_DNS: 'true'
-            TS_AUTHKEY: "{{ lookup('env', 'TAILSCALE_AUTH_KEY') }}"
-            TS_HOSTNAME: "{{ lookup('env', 'MAIN_HOST_NAME') }}"
-            TS_ROUTES: "{{ lookup('env', 'SUBNET') }}"
+            TS_AUTHKEY: "{{ TAILSCALE_AUTH_KEY }}"
+            TS_HOSTNAME: "{{ TAILSCALE_MAIN_HOST_NAME }}"
+            TS_ROUTES: "{{ TAILSCALE_SUBNET }}"
             TS_EXTRA_ARGS: "--advertise-exit-node"
