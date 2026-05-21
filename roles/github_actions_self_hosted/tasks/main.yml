@@ -1,4 +1,8 @@
 ---
+- name: Ensure Github Runner token is provided
+  ansible.builtin.assert:
+    that: GITHUB_RUNNER_TOKEN != ""
+    fail_msg: "GITHUB_RUNNER_TOKEN is missing."
 
 #
 # Supported Vars:

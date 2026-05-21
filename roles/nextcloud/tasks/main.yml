@@ -1,4 +1,10 @@
 ---
+- name: Ensure Nextcloud secrets are provided
+  ansible.builtin.assert:
+    that:
+      - NEXTCLOUD_DB_PASSWORD != ""
+      - NEXTCLOUD_ADMIN_PASSWD != ""
+    fail_msg: "Nextcloud secrets (DB password or Admin password) are missing."
 
 #
 # Supported Vars:

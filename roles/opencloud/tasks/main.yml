@@ -1,4 +1,9 @@
 ---
+- name: Ensure OpenCloud admin password is provided
+  ansible.builtin.assert:
+    that: OC_ADMIN_PASSWORD != ""
+    fail_msg: "OC_ADMIN_PASSWORD is missing."
+
 - name: get hdd gid
   getent:
     database: group

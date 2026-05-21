@@ -1,4 +1,10 @@
 ---
+- name: Ensure Semaphore secrets are provided
+  ansible.builtin.assert:
+    that:
+      - semaphore_db_password != ""
+      - semaphore_admin_passwd != ""
+    fail_msg: "Semaphore secrets (DB or Admin password) are missing."
 
 - name: Install MySQL
   include_role:

@@ -1,4 +1,13 @@
 ---
+- name: Ensure Forgejo secrets are provided
+  ansible.builtin.assert:
+    that:
+      - forgejo_db_password != ""
+      - forgejo_root_password != ""
+      - forgejo_shared_secret1 != ""
+      - forgejo_shared_secret2 != ""
+    fail_msg: "Forgejo secrets (DB, Root, or Shared Secrets) are missing."
+
 - name: "Generate Forgejo Docker Compose file"
   include_role:
     name: utils
