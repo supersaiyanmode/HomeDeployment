@@ -17,6 +17,11 @@
   vars:
     docker_install_compose: false
     docker_edition: 'ce'
+    docker_daemon_options:
+      log-driver: "json-file"
+      log-opts:
+        max-size: "50m"
+        max-file: "3"
 
 - name: Ensure Docker service is restarted after CA update
   ansible.builtin.service:
